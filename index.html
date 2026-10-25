@@ -1,1 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>RehaMetrics - リハビリ計測支援アプリ</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app" class="app-container">
+    <!-- ヘッダー -->
+    <header class="app-header">
+      <div class="header-left">
+        <span class="logo-badge">RehaApp</span>
+        <h1 class="header-title">10m歩行テスト</h1>
+      </div>
+      <div class="header-actions">
+        <button id="sound-toggle-btn" class="icon-btn active" title="効果音のON/OFF" aria-label="効果音切替">
+          <span class="icon">🔔</span>
+        </button>
+        <button id="vibrate-toggle-btn" class="icon-btn active" title="振動フィードバックのON/OFF" aria-label="振動切替">
+          <span class="icon">📳</span>
+        </button>
+        <button id="reset-all-btn" class="icon-btn text-danger" title="すべての記録をリセット" aria-label="リセット">
+          <span class="icon">🔄</span>
+        </button>
+      </div>
+    </header>
 
+    <!-- タブナビゲーション -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="tab-btn active" data-tab="measure" role="tab" aria-selected="true" id="tab-measure-btn">
+        <span class="tab-icon">⏱️</span> 計測・記録
+      </button>
+      <button class="tab-btn" data-tab="feedback" role="tab" aria-selected="false" id="tab-feedback-btn">
+        <span class="tab-icon">📊</span> 結果・平均値比較
+      </button>
+      <button class="tab-btn" data-tab="manual" role="tab" aria-selected="false" id="tab-manual-btn">
+        <span class="tab-icon">📖</span> 手順・教示マニュアル
+      </button>
+    </nav>
+
+    <!-- メインコンテンツ -->
+    <main class="app-main">
+      <!-- 1. 計測・記録タブ -->
+      <section id="tab-measure" class="tab-pane active" role="tabpanel">
+        
+        <!-- モード切替（快適速度 vs 最大速度） -->
+        <div class="mode-selector">
+          <button id="mode-comfortable" class="mode-btn active" data-mode="comfortable">
+            <span class="mode-title">快適歩行速度</span>
+            <span class="mode-sub">普段どおりの自然な速さ</span>
+          </button>
+          <button id="mode-maximum" class="mode-btn" data-mode="maximum">
+            <span class="mode-title">最大歩行速度</span>
+            <span class="mode-sub">安全にできるだけ速く</span>
+          </button>
+        </div>
+
+        <!-- 計測回数セレクタ (1回目 / 2回目) -->
+        <div class="trial-selector">
+          <button class="trial-btn active" data-trial="1" id="trial-1-btn">
+            第 1 回目 <span class="trial-indicator" id="trial-1-badge">未測定</span>
+          </button>
+          <button class="trial-btn" data-trial="2" id="trial-2-btn">
+            第 2 回目 <span class="trial-indicator" id="trial-2-badge">未測定</span>
+          </button>
+        </div>
+
+        <!-- タイマーストップウォッチ・タップ領域 -->
+        <div class="timer-card" id="timer-touch-area" role="button" tabindex="0" aria-label="タップして計測開始・停止">
+          <div class="timer-badge" id="timer-status-badge">タップして計測開始</div>
+          <div class="timer-display" id="timer-display">00.00<span class="timer-unit">秒</span></div>
+          <div class="timer-sub-metrics" id="timer-sub-metrics">
+            <span>歩行速度: <strong id="current-speed">-</strong> m/s</span>
+          </div>
+          <div class="timer-hint">
+            <span class="hint-icon">👆</span> 画面のどこを押しても開始・停止できます
+          </div>
+        </div>
+
+        <!-- 歩数入力 & 補助情報 -->
+        <div class="metric-input-card">
+          <div class="input-header">
+            <label for="step-count-input" class="input-label">歩数（任意）</label>
+            <span class="input-caption">歩数を入力すると歩幅・ケイデンスを自動計算</span>
+          </div>
+          <div class="counter-control">
+            <button type="button" class="btn-step-adjust" id="btn-step-minus" aria-label="歩数を減らす">ー</button>
+            <input type="number" id="step-count-input" min="0" max="100" placeholder="0" class="step-input" inputmode="numeric">
+            <button type="button" class="btn-step-adjust" id="btn-step-plus" aria-label="歩数を増やす">＋</button>
+            <span class="unit-text">歩</span>
+          </div>
+        </div>
+
+        <!-- 記録サマリーカード（1回目・2回目一覧） -->
+        <div class="summary-section">
+          <div class="summary-header">
+            <h2 class="summary-title" id="summary-section-title">快適歩行の記録</h2>
+            <button type="button" class="btn-text-danger" id="btn-clear-current-mode">このモードをクリア</button>
+          </div>
+          
+          <div class="records-grid">
+            <!-- 1回目カード -->
+            <div class="record-card" id="card-trial-1">
+              <div class="card-top">
+                <span class="card-tag">1回目</span>
+                <span class="card-status" id="card-1-status">未</span>
+              </div>
+              <div class="card-value" id="card-1-time">--.--<small>秒</small></div>
+              <div class="card-details">
+                <div>速度: <strong id="card-1-speed">--</strong> m/s</div>
+                <div>歩数: <span id="card-1-steps">--</span> 歩</div>
+                <div>歩幅: <span id="card-1-step-length">--</span> cm</div>
+              </div>
+            </div>
+
+            <!-- 2回目カード -->
+            <div class="record-card" id="card-trial-2">
+              <div class="card-top">
+                <span class="card-tag">2回目</span>
+                <span class="card-status" id="card-2-status">未</span>
+              </div>
+              <div class="card-value" id="card-2-time">--.--<small>秒</small></div>
+              <div class="card-details">
+                <div>速度: <strong id="card-2-speed">--</strong> m/s</div>
+                <div>歩数: <span id="card-2-steps">--</span> 歩</div>
+                <div>歩幅: <span id="card-2-step-length">--</span> cm</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 採用値（最速 or 平均） -->
+          <div class="adoption-box" id="adoption-box">
+            <div class="adoption-title">採用データ（平均値）</div>
+            <div class="adoption-main" id="adoption-summary">2回計測すると自動計算されます</div>
+          </div>
+        </div>
+
+        <!-- クイックカルテコピーボタン -->
+        <div class="action-footer">
+          <button id="quick-copy-btn" class="primary-btn">
+            <span class="btn-icon">📋</span> カルテ用テキストをコピー
+          </button>
+          <div id="copy-toast" class="toast hidden">カルテ用テキストをクリップボードにコピーしました！</div>
+        </div>
+
+      </section>
+
+      <!-- 2. 結果・患者フィードバックタブ -->
+      <section id="tab-feedback" class="tab-pane" role="tabpanel">
+        <div class="fb-card">
+          <div class="fb-header">
+            <h2>患者向け説明・同年代平均比較</h2>
+            <p class="fb-sub">性別・年代を選択すると、同年代の基準値と比較できます</p>
+          </div>
+
+          <div class="patient-filter-grid">
+            <div class="filter-group">
+              <label for="filter-gender">性別</label>
+              <select id="filter-gender" class="select-box">
+                <option value="male">男性</option>
+                <option value="female" selected>女性</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="filter-age">年代</label>
+              <select id="filter-age" class="select-box">
+                <option value="60">60代 (60-69歳)</option>
+                <option value="70" selected>70代 (70-79歳)</option>
+                <option value="80">80代以上 (80歳〜)</option>
+                <option value="young">青年・中年期 (〜59歳)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 比較メーター表示 -->
+          <div class="comparison-container">
+            <!-- 快適速度の比較 -->
+            <div class="meter-box">
+              <div class="meter-head">
+                <span class="meter-name">快適歩行速度</span>
+                <span class="meter-current" id="meter-comf-val">測定なし</span>
+              </div>
+              <div class="bar-container">
+                <div class="bar-track">
+                  <div class="bar-benchmark" id="comf-benchmark-line" title="同年代平均"></div>
+                  <div class="bar-fill" id="comf-bar-fill" style="width: 0%;"></div>
+                </div>
+              </div>
+              <div class="bar-labels">
+                <span>0.4 m/s (要支援域)</span>
+                <span class="benchmark-label" id="comf-benchmark-text">同年代平均: 1.25 m/s</span>
+                <span>1.8 m/s</span>
+              </div>
+              <div class="meter-evaluation" id="comf-evaluation-text">快適歩行の計測後に判定が表示されます</div>
+            </div>
+
+            <!-- 最大速度の比較 -->
+            <div class="meter-box">
+              <div class="meter-head">
+                <span class="meter-name">最大歩行速度</span>
+                <span class="meter-current" id="meter-max-val">測定なし</span>
+              </div>
+              <div class="bar-container">
+                <div class="bar-track">
+                  <div class="bar-benchmark" id="max-benchmark-line" title="同年代平均"></div>
+                  <div class="bar-fill max-bar" id="max-bar-fill" style="width: 0%;"></div>
+                </div>
+              </div>
+              <div class="bar-labels">
+                <span>0.6 m/s</span>
+                <span class="benchmark-label" id="max-benchmark-text">同年代平均: 1.62 m/s</span>
+                <span>2.2 m/s</span>
+              </div>
+              <div class="meter-evaluation" id="max-evaluation-text">最大歩行の計測後に判定が表示されます</div>
+            </div>
+          </div>
+
+          <!-- 臨床カットオフ値ガイド -->
+          <div class="cutoff-guide">
+            <h3 class="guide-heading">⚠️ 臨床判断のカットオフ基準</h3>
+            <ul class="cutoff-list">
+              <li><strong class="tag-danger">&lt; 0.8 m/s</strong>: 移動機能低下・サルコペニア疑い・屋外歩行制限リスク高</li>
+              <li><strong class="tag-warning">&lt; 1.0 m/s</strong>: 転倒リスク増加・青信号横断（1.0m/s必要）困難の目安</li>
+              <li><strong class="tag-success">&gt; 1.2 m/s</strong>: 地域社会での自立歩行・活動的な屋外移動が可能</li>
+            </ul>
+          </div>
+
+          <!-- 患者向け説明のアドバイス例文 -->
+          <div class="patient-talk-card">
+            <h3>🗣️ 患者さんへのフィードバック例</h3>
+            <div class="talk-box" id="patient-talk-sample">
+              「今回の測定では、同年代の平均と比べて安定したペースで歩けています。屋外の横断歩道も安全に渡れる速度を十分に保てていますよ。」
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. 手順・教示マニュアルタブ -->
+      <section id="tab-manual" class="tab-pane" role="tabpanel">
+        <div class="manual-container">
+          <div class="manual-card">
+            <h2>10m歩行テスト 実施手順規程</h2>
+            <p class="manual-desc">スタッフ間での測定手技のばらつきを防ぐため、本プロトコルを遵守してください。</p>
+
+            <div class="manual-section">
+              <h3>1. コース環境の設定</h3>
+              <div class="course-diagram">
+                <div class="course-segment runup">助走区間<br>2〜3m</div>
+                <div class="course-segment testzone">測定区間（10m）<br>⏱️ タイマー計測区間</div>
+                <div class="course-segment slowdown">減速区間<br>2〜3m</div>
+              </div>
+              <ul class="rule-list">
+                <li>全体の歩行路は <strong>14m〜16m</strong> の平坦な直線を用意します。</li>
+                <li>スタート直後とゴール直前の加減速を除くため、<strong>中間10m</strong> を計測します。</li>
+                <li>足尖（つま先）が10m開始線を越えた瞬間にスタート、10m終了線を越えた瞬間にストップします。</li>
+              </ul>
+            </div>
+
+            <div class="manual-section">
+              <h3>2. 統一された教示（声かけ）</h3>
+              <div class="instruction-box">
+                <div class="inst-item">
+                  <span class="inst-tag">快適歩行</span>
+                  <p>「普段歩いているような、ご自身にとって自然で楽な速さで歩いてください。途中で止まらず、最後の目印まで歩き抜けてください。では、どうぞ。」</p>
+                </div>
+                <div class="inst-item">
+                  <span class="inst-tag max">最大歩行</span>
+                  <p>「転ばないように安全に気をつけながら、できるだけ速く歩いてください（走らないでください）。最後の目印までスピードを落とさずに歩いてください。では、どうぞ。」</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="manual-section">
+              <h3>3. 補助具と測定回数の統一ルール</h3>
+              <ul class="rule-list">
+                <li><strong>歩行補助具</strong>: 普段使用している杖や歩行器は使用可能。ただしカルテ記録時に補助具名を明記します。</li>
+                <li><strong>計測回数</strong>: 原則 <strong>各速度2回</strong> 計測し、平均値または最大値を記録（疲労が著しい場合は1回で終了）。</li>
+                <li><strong>歩数カウント</strong>: 10m測定区間内に着地した歩数を数えます（最初の接地を1歩目とする）。</li>
+              </ul>
+            </div>
+
+            <div class="manual-section">
+              <h3>4. 中止基準</h3>
+              <ul class="rule-list text-danger-list">
+                <li>強いふらつき、バランス崩れがあり転倒の危険が生じた場合</li>
+                <li>胸痛、動悸、高度の息切れ、めまい等の自覚症状が現れた場合</li>
+                <li>患者本人から中止の申し出があった場合</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- 一時カルテ出力プレビュー用モーダル（非表示/呼出可能） -->
+    <div id="chart-preview-modal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>カルテ転記テキスト</h3>
+          <button id="modal-close-btn" class="btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <textarea id="chart-text-output" class="chart-textarea" readonly rows="8"></textarea>
+          <div class="privacy-note">
+            🛡️ 患者の個人情報は含まれません。電子カルテの経過記録（SOAPのO）に貼り付けてご利用ください。
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="modal-copy-btn" class="primary-btn">クリップボードにコピー</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
