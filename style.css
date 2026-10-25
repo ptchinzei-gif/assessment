@@ -1,5 +1,5 @@
 /* ========================================================
-   RehaMetrics - 10m歩行テスト スタイルシート
+   RehaMetrics - リハビリ計測支援アプリ スタイルシート
    モバイル最適化・清潔感あるメディカルモダンデザイン
    ======================================================== */
 
@@ -7,12 +7,14 @@
   --primary: #0284c7;         /* 信頼感のある医療ブルー */
   --primary-hover: #0369a1;
   --primary-light: #e0f2fe;
-  --emerald: #059669;         /* 快適歩行アクセント */
+  --emerald: #059669;         /* 快適・良好アクセント */
   --emerald-light: #d1fae5;
-  --amber: #d97706;           /* 最大歩行アクセント */
+  --amber: #d97706;           /* 警告・注意アクセント */
   --amber-light: #fef3c7;
   --danger: #dc2626;          /* アラート・リセット */
   --danger-light: #fee2e2;
+  --indigo: #4f46e5;          /* SPPBアクセント */
+  --indigo-light: #e0e7ff;
   --bg-main: #f8fafc;
   --bg-card: #ffffff;
   --text-primary: #0f172a;
@@ -46,7 +48,7 @@ body {
   user-select: none;
 }
 
-/* アプリ全体コンテナ（スマホ幅に最適化しつつPCでも中央表示） */
+/* アプリ全体コンテナ */
 .app-container {
   max-width: 480px;
   min-height: 100vh;
@@ -63,7 +65,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
+  padding: 10px 14px;
   background-color: #ffffff;
   border-bottom: 1px solid var(--border-color);
   position: sticky;
@@ -75,6 +77,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 1;
 }
 
 .logo-badge {
@@ -85,30 +88,45 @@ body {
   padding: 2px 6px;
   border-radius: 4px;
   letter-spacing: 0.5px;
+  flex-shrink: 0;
 }
 
-.header-title {
-  font-size: 1.15rem;
+/* 評価法スイッチャー */
+.assessment-switcher {
+  flex: 1;
+  max-width: 240px;
+}
+
+.assessment-dropdown {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--text-primary);
+  background-color: #f1f5f9;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  outline: none;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
   gap: 6px;
+  margin-left: 6px;
 }
 
 .icon-btn {
   background: var(--bg-main);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -131,6 +149,17 @@ body {
   color: var(--danger);
 }
 
+/* 評価ビュー（10m歩行 vs SPPB） */
+.assessment-view {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+}
+
+.assessment-view.active {
+  display: flex;
+}
+
 /* タブナビゲーション */
 .nav-tabs {
   display: flex;
@@ -143,7 +172,7 @@ body {
   flex: 1;
   border: none;
   background: transparent;
-  padding: 10px 4px;
+  padding: 9px 4px;
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -187,7 +216,9 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* モード切替（快適速度 vs 最大速度） */
+/* ========================================================
+   10m歩行テスト スタイル
+   ======================================================== */
 .mode-selector {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -208,13 +239,13 @@ body {
 .mode-btn .mode-title {
   display: block;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: var(--text-primary);
 }
 
 .mode-btn .mode-sub {
   display: block;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
   margin-top: 2px;
 }
@@ -235,7 +266,6 @@ body {
   color: #92400e;
 }
 
-/* 試行回数セレクタ（1回目・2回目） */
 .trial-selector {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -277,7 +307,6 @@ body {
   color: #ffffff;
 }
 
-/* タイマーストップウォッチ カード（超重要タップエリア） */
 .timer-card {
   background: linear-gradient(145deg, #0f172a, #1e293b);
   border-radius: var(--radius-lg);
@@ -359,10 +388,6 @@ body {
   font-size: 1.25rem;
 }
 
-.timer-card.running .timer-sub-metrics strong {
-  color: #a7f3d0;
-}
-
 .timer-hint {
   font-size: 0.75rem;
   color: #94a3b8;
@@ -370,7 +395,6 @@ body {
   padding-top: 8px;
 }
 
-/* 歩数入力カード */
 .metric-input-card {
   margin-top: 14px;
   background: #ffffff;
@@ -440,7 +464,6 @@ body {
   color: var(--text-secondary);
 }
 
-/* 記録サマリー一覧 */
 .summary-section {
   margin-top: 16px;
 }
@@ -538,7 +561,6 @@ body {
   padding-top: 4px;
 }
 
-/* 採用値サマリーボックス */
 .adoption-box {
   margin-top: 10px;
   background: #f8fafc;
@@ -556,16 +578,528 @@ body {
 }
 
 .adoption-main {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: var(--primary-hover);
 }
 
-/* フッターアクション */
+/* ========================================================
+   SPPB（高齢者総合機能）専用スタイル
+   ======================================================== */
+.sppb-score-banner {
+  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  color: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 8px 20px -4px rgba(49, 46, 129, 0.35);
+  margin-bottom: 16px;
+}
+
+.sppb-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #c7d2fe;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.sppb-total-display {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.total-score-num {
+  font-family: var(--font-mono);
+  font-size: 2.8rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #38bdf8;
+}
+
+.total-score-max {
+  font-size: 1rem;
+  color: #cbd5e1;
+}
+
+.score-banner-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.rank-badge {
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.rank-badge.good {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.rank-badge.moderate {
+  background: #f59e0b;
+  color: #ffffff;
+}
+
+.rank-badge.severe {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.rank-sub {
+  font-size: 0.72rem;
+  color: #cbd5e1;
+}
+
+/* SPPB セクションカード */
+.sppb-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.sppb-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.sppb-card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sppb-sec-num {
+  background: var(--indigo);
+  color: #ffffff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.sppb-card-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sppb-sec-score {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--indigo);
+  background: var(--indigo-light);
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.sppb-card-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+/* SPPB バランス テストボタングループ */
+.sppb-test-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sppb-sub-item {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px;
+}
+
+.sub-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+}
+
+.item-result-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #e2e8f0;
+  color: var(--text-secondary);
+}
+
+.item-result-label.done {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.balance-btn-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.balance-btn-group-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px;
+}
+
+.sppb-choice-btn {
+  background: #ffffff;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 4px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.sppb-choice-btn.active {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary-hover);
+  font-weight: 700;
+}
+
+/* ミニタイマー（SPPB用 4m & 椅子立ち上がり） */
+.sppb-mini-timer {
+  background: linear-gradient(145deg, #1e293b, #0f172a);
+  color: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 16px 12px;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: transform 0.1s ease;
+}
+
+.sppb-mini-timer:active {
+  transform: scale(0.985);
+}
+
+.sppb-mini-timer.running {
+  background: linear-gradient(145deg, #064e3b, #047857);
+}
+
+.sppb-mini-timer.chair-timer.running {
+  background: linear-gradient(145deg, #431407, #7c2d12);
+}
+
+.mini-timer-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+
+.sppb-mini-timer.running .mini-timer-label {
+  color: #a7f3d0;
+}
+
+.mini-timer-display {
+  font-family: var(--font-mono);
+  font-size: 2.8rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.mini-timer-display small {
+  font-size: 1rem;
+  margin-left: 2px;
+}
+
+.mini-timer-sub {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* 4mスロットグリッド */
+.gait-slots-grid {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.gait-slot {
+  flex: 1;
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.gait-slot.active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.slot-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.slot-val {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.btn-slot-switch {
+  background: #e2e8f0;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* 椅子立ち上がり事前チェック */
+.chair-precheck {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  margin-bottom: 10px;
+}
+
+.precheck-btns {
+  display: flex;
+  gap: 4px;
+}
+
+.sppb-pill-btn {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sppb-pill-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+.manual-time-input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+}
+
+.time-num-input {
+  width: 70px;
+  padding: 4px 6px;
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.btn-set-manual {
+  background: #f1f5f9;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* 基準ボックス */
+.sppb-criteria-box {
+  background: #f8fafc;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+
+.crit-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.crit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.crit-tag {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  background: #ffffff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.crit-tag.highlight {
+  background: #dcfce7;
+  color: #166534;
+  font-weight: 700;
+  border-color: #86efac;
+}
+
+.btn-unable {
+  width: 100%;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  border-radius: var(--radius-sm);
+  padding: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* SPPB 総合判定タブ */
+.sppb-overall-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.sppb-total-gauge {
+  background: #f0fdf4;
+  border: 3px solid #10b981;
+  border-radius: 50%;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sppb-total-gauge.moderate {
+  background: #fffbeb;
+  border-color: #f59e0b;
+}
+
+.sppb-total-gauge.severe {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+.gauge-number {
+  font-family: var(--font-mono);
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.gauge-max {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.sppb-gauge-info h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.sppb-gauge-info p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.sppb-breakdown-card {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.sppb-breakdown-card h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  border-bottom: 1px dashed var(--border-color);
+  padding-bottom: 4px;
+}
+
+.breakdown-row strong {
+  font-family: var(--font-mono);
+  color: var(--indigo);
+}
+
+/* ========================================================
+   共通UI & フッター & モーダル
+   ======================================================== */
 .action-footer {
   margin-top: 18px;
   padding-bottom: 20px;
-  position: relative;
 }
 
 .primary-btn {
@@ -591,7 +1125,6 @@ body {
   background: var(--primary-hover);
 }
 
-/* トースト通知 */
 .toast {
   position: fixed;
   bottom: 24px;
@@ -614,13 +1147,178 @@ body {
   transform: translate(-50%, 20px);
 }
 
-/* 2. 患者フィードバックタブのスタイル */
-.fb-card {
-  background: #ffffff;
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 16px;
 }
 
-.fb-header h2 {
-  font-size: 1.1rem;
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: #ffffff;
+  width: 100%;
+  max-width: 440px;
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.chart-textarea {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  resize: none;
+  background: #f8fafc;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.privacy-note {
+  font-size: 0.72rem;
+  color: #059669;
+  background: #ecfdf5;
+  padding: 6px 8px;
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
+.modal-footer {
+  margin-top: 14px;
+}
+
+/* マニュアル */
+.manual-card h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.manual-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.manual-section {
+  margin-bottom: 18px;
+}
+
+.manual-section h3 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  border-left: 3px solid var(--primary);
+  padding-left: 8px;
+  margin-bottom: 8px;
+}
+
+.course-diagram {
+  display: flex;
+  height: 52px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.course-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.course-segment.runup {
+  flex: 2;
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.course-segment.testzone {
+  flex: 6;
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.course-segment.slowdown {
+  flex: 2;
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.rule-list {
+  padding-left: 18px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.instruction-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inst-item {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+
+.inst-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--emerald-light);
+  color: #065f46;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.inst-tag.max {
+  background: var(--amber-light);
+  color: #92400e;
+}
+
+.inst-item p {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+}
+
+/* フィードバック */
+.fb-card h2 {
+  font-size: 1.05rem;
   font-weight: 700;
 }
 
@@ -800,178 +1498,4 @@ body {
   font-size: 0.82rem;
   color: #14532d;
   line-height: 1.5;
-}
-
-/* 3. マニュアルタブのスタイル */
-.manual-card h2 {
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-
-.manual-desc {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  margin-bottom: 14px;
-}
-
-.manual-section {
-  margin-bottom: 18px;
-}
-
-.manual-section h3 {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  border-left: 3px solid var(--primary);
-  padding-left: 8px;
-  margin-bottom: 8px;
-}
-
-.course-diagram {
-  display: flex;
-  height: 52px;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  margin-bottom: 10px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-align: center;
-}
-
-.course-segment {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.course-segment.runup {
-  flex: 2;
-  background: #e2e8f0;
-  color: #475569;
-}
-
-.course-segment.testzone {
-  flex: 6;
-  background: #0284c7;
-  color: #ffffff;
-}
-
-.course-segment.slowdown {
-  flex: 2;
-  background: #e2e8f0;
-  color: #475569;
-}
-
-.rule-list {
-  padding-left: 18px;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.text-danger-list {
-  color: #b91c1c;
-}
-
-.instruction-box {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.inst-item {
-  background: #f8fafc;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: 8px 10px;
-}
-
-.inst-tag {
-  display: inline-block;
-  font-size: 0.7rem;
-  font-weight: 700;
-  background: var(--emerald-light);
-  color: #065f46;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-bottom: 4px;
-}
-
-.inst-tag.max {
-  background: var(--amber-light);
-  color: #92400e;
-}
-
-.inst-item p {
-  font-size: 0.8rem;
-  color: var(--text-primary);
-}
-
-/* モーダル */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
-  padding: 16px;
-}
-
-.modal-overlay.hidden {
-  display: none;
-}
-
-.modal-content {
-  background: #ffffff;
-  width: 100%;
-  max-width: 440px;
-  border-radius: var(--radius-lg);
-  padding: 18px;
-  box-shadow: var(--shadow-lg);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.btn-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: var(--text-muted);
-  cursor: pointer;
-}
-
-.chart-textarea {
-  width: 100%;
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: 10px;
-  resize: none;
-  background: #f8fafc;
-  color: var(--text-primary);
-  line-height: 1.5;
-}
-
-.privacy-note {
-  font-size: 0.72rem;
-  color: #059669;
-  background: #ecfdf5;
-  padding: 6px 8px;
-  border-radius: 4px;
-  margin-top: 8px;
-}
-
-.modal-footer {
-  margin-top: 14px;
 }
