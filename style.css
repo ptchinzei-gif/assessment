@@ -1,0 +1,977 @@
+/* ========================================================
+   RehaMetrics - 10m歩行テスト スタイルシート
+   モバイル最適化・清潔感あるメディカルモダンデザイン
+   ======================================================== */
+
+:root {
+  --primary: #0284c7;         /* 信頼感のある医療ブルー */
+  --primary-hover: #0369a1;
+  --primary-light: #e0f2fe;
+  --emerald: #059669;         /* 快適歩行アクセント */
+  --emerald-light: #d1fae5;
+  --amber: #d97706;           /* 最大歩行アクセント */
+  --amber-light: #fef3c7;
+  --danger: #dc2626;          /* アラート・リセット */
+  --danger-light: #fee2e2;
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: #e2e8f0;
+  --border-focus: #38bdf8;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  line-height: 1.5;
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* アプリ全体コンテナ（スマホ幅に最適化しつつPCでも中央表示） */
+.app-container {
+  max-width: 480px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+}
+
+/* ヘッダー */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0284c7, #0ea5e9);
+  color: #ffffff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.header-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon-btn {
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:active {
+  transform: scale(0.92);
+}
+
+.icon-btn.active {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.icon-btn.inactive {
+  opacity: 0.45;
+  filter: grayscale(100%);
+}
+
+.icon-btn.text-danger {
+  color: var(--danger);
+}
+
+/* タブナビゲーション */
+.nav-tabs {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tab-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 10px 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  background: #ffffff;
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.tab-icon {
+  font-size: 0.95rem;
+}
+
+/* メインコンテンツ領域 */
+.app-main {
+  flex: 1;
+  padding: 14px;
+  overflow-y: auto;
+}
+
+.tab-pane {
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+
+.tab-pane.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* モード切替（快適速度 vs 最大速度） */
+.mode-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.mode-btn {
+  background: var(--bg-main);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-btn .mode-title {
+  display: block;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.mode-btn .mode-sub {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.mode-btn.active#mode-comfortable {
+  background: var(--emerald-light);
+  border-color: var(--emerald);
+}
+.mode-btn.active#mode-comfortable .mode-title {
+  color: #065f46;
+}
+
+.mode-btn.active#mode-maximum {
+  background: var(--amber-light);
+  border-color: var(--amber);
+}
+.mode-btn.active#mode-maximum .mode-title {
+  color: #92400e;
+}
+
+/* 試行回数セレクタ（1回目・2回目） */
+.trial-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.trial-btn {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.trial-btn.active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary-hover);
+}
+
+.trial-indicator {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #e2e8f0;
+  color: var(--text-secondary);
+}
+
+.trial-indicator.done {
+  background: var(--emerald);
+  color: #ffffff;
+}
+
+/* タイマーストップウォッチ カード（超重要タップエリア） */
+.timer-card {
+  background: linear-gradient(145deg, #0f172a, #1e293b);
+  border-radius: var(--radius-lg);
+  padding: 24px 16px 20px;
+  text-align: center;
+  color: #ffffff;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+  outline: none;
+}
+
+.timer-card:active {
+  transform: scale(0.985);
+}
+
+.timer-card.running {
+  background: linear-gradient(145deg, #064e3b, #047857);
+  box-shadow: 0 10px 30px -5px rgba(5, 150, 105, 0.45);
+  animation: pulseRunning 2s infinite ease-in-out;
+}
+
+.timer-card.running.max-mode {
+  background: linear-gradient(145deg, #78350f, #b45309);
+  box-shadow: 0 10px 30px -5px rgba(217, 119, 6, 0.45);
+}
+
+@keyframes pulseRunning {
+  0%, 100% { box-shadow: 0 8px 25px -3px rgba(5, 150, 105, 0.4); }
+  50% { box-shadow: 0 12px 35px 2px rgba(5, 150, 105, 0.7); }
+}
+
+.timer-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.timer-card.running .timer-badge {
+  background: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+.timer-display {
+  font-family: var(--font-mono);
+  font-size: 3.8rem;
+  font-weight: 700;
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.timer-unit {
+  font-size: 1.2rem;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  margin-left: 4px;
+  opacity: 0.85;
+}
+
+.timer-sub-metrics {
+  font-size: 1rem;
+  color: #cbd5e1;
+  margin-bottom: 12px;
+}
+
+.timer-sub-metrics strong {
+  color: #38bdf8;
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+}
+
+.timer-card.running .timer-sub-metrics strong {
+  color: #a7f3d0;
+}
+
+.timer-hint {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 8px;
+}
+
+/* 歩数入力カード */
+.metric-input-card {
+  margin-top: 14px;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.input-header {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.input-caption {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.counter-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-step-adjust {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: #f1f5f9;
+  border: 1px solid var(--border-color);
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.btn-step-adjust:active {
+  background: #e2e8f0;
+}
+
+.step-input {
+  width: 54px;
+  height: 36px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.unit-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* 記録サマリー一覧 */
+.summary-section {
+  margin-top: 16px;
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.summary-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.btn-text-danger {
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+.records-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.record-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  transition: all 0.2s ease;
+}
+
+.record-card.active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1.5px var(--primary);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.card-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.card-status {
+  font-size: 0.7rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #f1f5f9;
+  color: var(--text-muted);
+}
+
+.card-status.recorded {
+  background: #dcfce7;
+  color: #15803d;
+  font-weight: 600;
+}
+
+.card-value {
+  font-family: var(--font-mono);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.card-value small {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-left: 2px;
+}
+
+.card-details {
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  border-top: 1px dashed var(--border-color);
+  padding-top: 4px;
+}
+
+/* 採用値サマリーボックス */
+.adoption-box {
+  margin-top: 10px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  text-align: center;
+}
+
+.adoption-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+
+.adoption-main {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary-hover);
+}
+
+/* フッターアクション */
+.action-footer {
+  margin-top: 18px;
+  padding-bottom: 20px;
+  position: relative;
+}
+
+.primary-btn {
+  width: 100%;
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+  transition: all 0.2s ease;
+}
+
+.primary-btn:active {
+  transform: scale(0.98);
+  background: var(--primary-hover);
+}
+
+/* トースト通知 */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.toast.hidden {
+  opacity: 0;
+  transform: translate(-50%, 20px);
+}
+
+/* 2. 患者フィードバックタブのスタイル */
+.fb-card {
+  background: #ffffff;
+}
+
+.fb-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.fb-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.patient-filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  border: 1px solid var(--border-color);
+}
+
+.filter-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.select-box {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.comparison-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.meter-box {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.meter-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.meter-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.meter-current {
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.bar-container {
+  margin: 10px 0 6px;
+}
+
+.bar-track {
+  height: 18px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #059669);
+  border-radius: 999px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bar-fill.max-bar {
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.bar-benchmark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #0f172a;
+  z-index: 5;
+  transform: translateX(-50%);
+}
+
+.bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.benchmark-label {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.meter-evaluation {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #065f46;
+  background: #ecfdf5;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.cutoff-guide {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.guide-heading {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #92400e;
+  margin-bottom: 6px;
+}
+
+.cutoff-list {
+  list-style: none;
+  font-size: 0.78rem;
+  color: #78350f;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tag-danger {
+  color: #dc2626;
+}
+.tag-warning {
+  color: #d97706;
+}
+.tag-success {
+  color: #059669;
+}
+
+.patient-talk-card {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-md);
+  padding: 12px;
+}
+
+.patient-talk-card h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #166534;
+  margin-bottom: 6px;
+}
+
+.talk-box {
+  font-size: 0.82rem;
+  color: #14532d;
+  line-height: 1.5;
+}
+
+/* 3. マニュアルタブのスタイル */
+.manual-card h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.manual-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.manual-section {
+  margin-bottom: 18px;
+}
+
+.manual-section h3 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  border-left: 3px solid var(--primary);
+  padding-left: 8px;
+  margin-bottom: 8px;
+}
+
+.course-diagram {
+  display: flex;
+  height: 52px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.course-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.course-segment.runup {
+  flex: 2;
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.course-segment.testzone {
+  flex: 6;
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.course-segment.slowdown {
+  flex: 2;
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.rule-list {
+  padding-left: 18px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.text-danger-list {
+  color: #b91c1c;
+}
+
+.instruction-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inst-item {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+
+.inst-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--emerald-light);
+  color: #065f46;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.inst-tag.max {
+  background: var(--amber-light);
+  color: #92400e;
+}
+
+.inst-item p {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+}
+
+/* モーダル */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 16px;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: #ffffff;
+  width: 100%;
+  max-width: 440px;
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.chart-textarea {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  resize: none;
+  background: #f8fafc;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.privacy-note {
+  font-size: 0.72rem;
+  color: #059669;
+  background: #ecfdf5;
+  padding: 6px 8px;
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
+.modal-footer {
+  margin-top: 14px;
+}
