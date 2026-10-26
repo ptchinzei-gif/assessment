@@ -165,16 +165,31 @@ function triggerVibration(pattern) {
 // ========================================================
 // 初期化 & イベント設定
 // ========================================================
-document.addEventListener('DOMContentLoaded', () => {
-  setupHeaderEvents();
-  setupWalk10mEvents();
-  setupSppbEvents();
-  setupCommonModalEvents();
+function initApp() {
+  try {
+    setupHeaderEvents();
+    setupWalk10mEvents();
+    setupSppbEvents();
+    setupCommonModalEvents();
 
-  updateWalkUI();
-  updateWalkFeedback();
-  updateSppbUI();
-});
+    updateWalkUI();
+    updateWalkFeedback();
+    updateSppbUI();
+    console.log('RehaMetrics: アプリの初期化が完了しました。');
+  } catch (error) {
+    console.error('RehaMetrics 初期化エラー:', error);
+  }
+}
+
+// DOM読み込みが進行中の場合はイベント待ち、既に完了している場合は即時実行
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
+
+window.appState = appState;
+window.initApp = initApp;
 
 // --------------------------------------------------------
 // ヘッダー & 評価スイッチャー
@@ -244,6 +259,9 @@ function switchAssessment(assessmentId) {
   appState.currentAssessment = assessmentId;
   document.getElementById('view-walk10m').classList.toggle('active', assessmentId === 'walk10m');
   document.getElementById('view-sppb').classList.toggle('active', assessmentId === 'sppb');
+  if (assessmentId === 'sppb') {
+    updateSppbUI();
+  }
 }
 
 // ========================================================
@@ -670,6 +688,10 @@ function setupSppbEvents() {
   const gaitTimer = document.getElementById('gait-timer-area');
   gaitTimer.addEventListener('click', toggleGaitTimer);
 
+  // 10m歩行からのデータ取り込み
+  const btnImport10m = document.getElementById('btn-import-10m');
+  btnImport10m.addEventListener('click', import10mWalkToSppb);
+
   const slot1 = document.getElementById('gait-slot-1');
   const slot2 = document.getElementById('gait-slot-2');
   slot1.addEventListener('click', () => setGaitSlot(1));
@@ -681,6 +703,7 @@ function setupSppbEvents() {
 
   document.getElementById('btn-gait-unable').addEventListener('click', () => {
     appState.sppb.gait.isUnable = true;
+    appState.sppb.gait.isImported = false;
     appState.sppb.gait[1] = null;
     appState.sppb.gait[2] = null;
     updateSppbScore();
@@ -752,6 +775,43 @@ function handleBalanceChoice(type, val) {
 
   updateSppbScore();
   updateSppbUI();
+}
+
+// 10m歩行テスト（快適歩行）から4m換算タイムを取り込む処理
+function import10mWalkToSppb() {
+  const comf1 = appState.walk.records.comfortable[1];
+  const comf2 = appState.walk.records.comfortable[2];
+  const adopt = getWalkAdoptionData('comfortable');
+
+  if (!adopt || (!comf1.speed && !comf2.speed)) {
+    alert('10m快適歩行の測定データがありません。先に10m歩行テストを計測してください。');
+    return;
+  }
+
+  const g = appState.sppb.gait;
+  g.isUnable = false;
+  g.isImported = true;
+  g.importedSpeed = adopt.speed;
+
+  // 1回目の4m換算タイム (4m ÷ 速度)
+  if (comf1.speed) {
+    g[1] = Math.round((4 / comf1.speed) * 100) / 100;
+  } else if (adopt.speed) {
+    g[1] = Math.round((4 / adopt.speed) * 100) / 100;
+  }
+
+  // 2回目の4m換算タイム
+  if (comf2.speed) {
+    g[2] = Math.round((4 / comf2.speed) * 100) / 100;
+  } else {
+    g[2] = null;
+  }
+
+  updateSppbScore();
+  updateSppbUI();
+
+  // 成功トースト表示
+  showToastCustom(`10m快適歩行（${adopt.speed.toFixed(2)}m/s）から4m換算タイムを取り込みました！`);
 }
 
 // 4m歩行タイマー
@@ -951,6 +1011,26 @@ function updateSppbUI() {
   document.getElementById('gait-val-1').textContent = s.gait[1] !== null ? `${s.gait[1].toFixed(2)}秒` : '--.--秒';
   document.getElementById('gait-val-2').textContent = s.gait[2] !== null ? `${s.gait[2].toFixed(2)}秒` : '--.--秒';
 
+  // 10m歩行取り込みボタンの状態更新
+  const btnImport10m = document.getElementById('btn-import-10m');
+  const import10mText = document.getElementById('import-10m-text');
+  const walkAdopt = getWalkAdoptionData('comfortable');
+
+  if (walkAdopt) {
+    btnImport10m.disabled = false;
+    if (s.gait.isImported) {
+      import10mText.innerHTML = `✅ 10m快適歩行（${walkAdopt.speed.toFixed(2)}m/s）から反映済`;
+      btnImport10m.textContent = `🔄 10m歩行データを再取り込み`;
+    } else {
+      import10mText.innerHTML = `10m快適歩行（${walkAdopt.speed.toFixed(2)}m/s, ${walkAdopt.time.toFixed(2)}秒）のデータを利用可能`;
+      btnImport10m.textContent = `🚶 10m歩行から4mタイムを取り込む`;
+    }
+  } else {
+    btnImport10m.disabled = true;
+    import10mText.innerHTML = `10m快適歩行が未測定です（測定後にワンタップ反映可能）`;
+    btnImport10m.textContent = `🚶 10m歩行から4mタイムを取り込む`;
+  }
+
   ['crit-gait-4', 'crit-gait-3', 'crit-gait-2', 'crit-gait-1'].forEach(id => {
     document.getElementById(id).classList.remove('highlight');
   });
@@ -981,7 +1061,8 @@ function updateSppbFeedback() {
   const s = appState.sppb;
   document.getElementById('fb-sppb-total-score').textContent = s.totalScore;
   document.getElementById('fb-score-balance').textContent = `${s.balance.score} / 4点`;
-  document.getElementById('fb-score-gait').textContent = `${s.gait.score} / 4点 (${s.gait.adoptedTime ? s.gait.adoptedTime.toFixed(2) + '秒' : '未'})`;
+  const gaitSuffix = s.gait.isImported ? ` (10m換算 ${s.gait.adoptedTime ? s.gait.adoptedTime.toFixed(2) + '秒' : '未'})` : ` (${s.gait.adoptedTime ? s.gait.adoptedTime.toFixed(2) + '秒' : '未'})`;
+  document.getElementById('fb-score-gait').textContent = `${s.gait.score} / 4点${gaitSuffix}`;
   document.getElementById('fb-score-chair').textContent = `${s.chair.score} / 4点 (${s.chair.time ? s.chair.time.toFixed(2) + '秒' : '未'})`;
 
   const gauge = document.querySelector('.sppb-total-gauge');
@@ -1022,7 +1103,10 @@ function generateSppbChartText() {
   // 2. 4m歩行
   txt += `  2) 4m歩行テスト: ${s.gait.score}/4点\n`;
   if (s.gait.adoptedTime) {
-    txt += `     (採用タイム: ${s.gait.adoptedTime.toFixed(2)}秒 [1回目: ${s.gait[1] ? s.gait[1].toFixed(2) + 's' : '-'} / 2回目: ${s.gait[2] ? s.gait[2].toFixed(2) + 's' : '-'}])\n`;
+    const importNote = s.gait.isImported ? ` ※10m快適歩行(${s.gait.importedSpeed ? s.gait.importedSpeed.toFixed(2) + 'm/s' : ''})より4m換算` : '';
+    const trial1Str = s.gait[1] !== null ? s.gait[1].toFixed(2) + 's' : '-';
+    const trial2Str = s.gait[2] !== null ? s.gait[2].toFixed(2) + 's' : '-';
+    txt += `     (採用タイム: ${s.gait.adoptedTime.toFixed(2)}秒 [1回目: ${trial1Str} / 2回目: ${trial2Str}]${importNote})\n`;
   } else if (s.gait.isUnable) {
     txt += `     (実施不能・歩行困難: 0点)\n`;
   } else {
@@ -1107,7 +1191,17 @@ function fallbackCopy(text) {
 }
 
 function showToast() {
+  showToastCustom('カルテ用テキストをクリップボードにコピーしました！');
+}
+
+function showToastCustom(msg) {
   const t = document.getElementById('copy-toast');
+  t.textContent = msg;
   t.classList.remove('hidden');
-  setTimeout(() => t.classList.add('hidden'), 2500);
+  setTimeout(() => {
+    t.classList.add('hidden');
+    setTimeout(() => {
+      t.textContent = 'カルテ用テキストをクリップボードにコピーしました！';
+    }, 300);
+  }, 2500);
 }
