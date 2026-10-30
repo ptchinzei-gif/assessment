@@ -788,6 +788,65 @@ body {
   font-weight: 700;
 }
 
+/* 10m歩行からのデータ転用ボックス */
+.import-10m-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.import-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.import-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: #059669;
+  color: #ffffff;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.import-text {
+  font-size: 0.75rem;
+  color: #166534;
+  font-weight: 600;
+}
+
+.btn-import-10m {
+  background: #059669;
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-import-10m:hover {
+  background: #047857;
+}
+
+.btn-import-10m:disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
 /* ミニタイマー（SPPB用 4m & 椅子立ち上がり） */
 .sppb-mini-timer {
   background: linear-gradient(145deg, #1e293b, #0f172a);
@@ -1499,3 +1558,916 @@ body {
   color: #14532d;
   line-height: 1.5;
 }
+
+/* ========================================================
+   BBS（バーグ・バランス・スケール）専用スタイル
+   ======================================================== */
+.bbs-score-banner {
+  background: linear-gradient(135deg, #31104b, #581c87);
+  color: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 8px 20px -4px rgba(88, 28, 135, 0.35);
+  margin-bottom: 14px;
+}
+
+.bbs-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #e9d5ff;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.bbs-total-display {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.bbs-total-display .total-score-num {
+  font-family: var(--font-mono);
+  font-size: 2.8rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #f0abfc;
+}
+
+.bbs-controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.bbs-progress-text {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.btn-toggle-all {
+  background: #f1f5f9;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+/* BBS 14項目カード */
+.bbs-items-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bbs-item-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.bbs-item-card.completed {
+  border-left: 4px solid #9333ea;
+}
+
+.bbs-item-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.bbs-item-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.bbs-item-num {
+  background: #9333ea;
+  color: #ffffff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.bbs-item-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.bbs-item-score-badge {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: var(--text-muted);
+}
+
+.bbs-item-score-badge.scored {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+.bbs-item-desc {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+/* 項目内タイマーボタン */
+.bbs-item-timer-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #faf5ff;
+  border: 1px dashed #d8b4fe;
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  margin-bottom: 10px;
+}
+
+.bbs-timer-btn {
+  background: #9333ea;
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bbs-timer-btn.running {
+  background: #dc2626;
+  animation: pulseRunning 1.5s infinite;
+}
+
+.bbs-timer-time {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #7e22ce;
+}
+
+/* BBS 選択ボタングループ（0〜4点） */
+.bbs-options-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.bbs-opt-btn {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.15s ease;
+  line-height: 1.35;
+}
+
+.bbs-opt-btn:hover {
+  background: #f1f5f9;
+}
+
+.bbs-opt-btn.active {
+  background: #f3e8ff;
+  border-color: #a855f7;
+  color: #6b21a8;
+  font-weight: 700;
+  box-shadow: 0 0 0 1px #a855f7;
+}
+
+.bbs-opt-score-tag {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #9333ea;
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+
+/* BBS 総合判定ゲージ */
+.bbs-gauge {
+  background: #faf5ff;
+  border: 3px solid #9333ea;
+  border-radius: 50%;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bbs-gauge.low-risk {
+  background: #f0fdf4;
+  border-color: #10b981;
+}
+
+.bbs-gauge.medium-risk {
+  background: #fffbeb;
+  border-color: #f59e0b;
+}
+
+.bbs-gauge.high-risk {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+/* ========================================================
+   運動負荷設定（Exercise Intensity）専用スタイル
+   ======================================================== */
+.ex-input-card,
+.ex-comparison-card,
+.pulse-check-card,
+.guide-card,
+.safety-alert-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.ex-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ex-sec-badge {
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.ex-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.ex-card-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+/* 入力グリッド */
+.ex-grid-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .ex-grid-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ex-form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.ex-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.ex-required {
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 0.68rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.ex-hint-tag {
+  background: #f1f5f9;
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.ex-input-wrap {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0 10px;
+}
+
+.ex-num-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 10px 0;
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.ex-unit {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+.ex-form-help {
+  font-size: 0.75rem;
+  color: #0284c7;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* ピルボタングループ */
+.ex-pill-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.ex-pill-btn {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.ex-pill-btn:hover {
+  background: #f1f5f9;
+}
+
+.ex-pill-btn.active {
+  background: #e0f2fe;
+  border-color: #0284c7;
+  color: #0369a1;
+  font-weight: 700;
+  box-shadow: 0 0 0 1px #0284c7;
+}
+
+.ex-dropdown {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: #f8fafc;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  outline: none;
+}
+
+/* 推定最大心拍数サマリーバナー */
+.ex-summary-banner {
+  background: linear-gradient(135deg, #0c4a6e, #0369a1);
+  color: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 12px -2px rgba(2, 132, 199, 0.35);
+}
+
+.ex-banner-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.ex-banner-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #bae6fd;
+  margin-bottom: 4px;
+}
+
+.ex-banner-val {
+  font-family: var(--font-mono);
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #ffffff;
+}
+
+.ex-banner-val small {
+  font-size: 0.85rem;
+  color: #7dd3fc;
+  font-weight: 500;
+}
+
+.ex-banner-sub {
+  font-size: 0.72rem;
+  color: #e0f2fe;
+  margin-top: 4px;
+  opacity: 0.9;
+}
+
+/* 比較テーブル */
+.ex-table-wrapper {
+  overflow-x: auto;
+  margin-bottom: 14px;
+}
+
+.ex-compare-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.82rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.ex-compare-table th {
+  background: #f8fafc;
+  padding: 10px 8px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  text-align: center;
+  line-height: 1.35;
+}
+
+.ex-compare-table th.col-hrr {
+  background: #f0fdf4;
+  color: #166534;
+  border-left: 2px solid #22c55e;
+  border-right: 1px solid var(--border-color);
+}
+
+.ex-compare-table th.col-hrmax {
+  background: #f0f9ff;
+  color: #0369a1;
+}
+
+.badge-rec {
+  background: #22c55e;
+  color: #ffffff;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.ex-compare-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.ex-compare-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.col-level {
+  text-align: left !important;
+  position: relative;
+  padding-left: 14px !important;
+}
+
+.level-indicator {
+  position: absolute;
+  left: 4px;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  border-radius: 2px;
+}
+
+.level-indicator.moderate { background: #22c55e; }
+.level-indicator.high { background: #f59e0b; }
+.level-indicator.danger { background: #ef4444; }
+
+.level-sub {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.col-hrr-val {
+  background: #fcfdfc;
+  border-left: 2px solid #22c55e;
+  border-right: 1px solid #e2e8f0;
+}
+
+.col-hrmax-val {
+  background: #fafcfe;
+}
+
+.target-bpm {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+.danger-text {
+  color: #dc2626 !important;
+}
+
+.pct-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  background: #f1f5f9;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-top: 3px;
+}
+
+.col-borg {
+  font-size: 0.78rem;
+}
+
+.borg-text {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+/* 視覚的心拍ゾーンバー */
+.hr-zone-visualizer {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.zone-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.zone-bar-container {
+  display: flex;
+  height: 24px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.zone-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.zone-rest { background: #94a3b8; }
+.zone-moderate { background: #22c55e; }
+.zone-high { background: #f59e0b; }
+.zone-limit { background: #ef4444; }
+
+/* 脈拍チェック支援 */
+.pulse-check-control {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+@media (max-width: 480px) {
+  .pulse-check-control {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pulse-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.pulse-input-wrap {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border: 2px solid #0284c7;
+  border-radius: var(--radius-sm);
+  padding: 0 10px;
+}
+
+.pulse-num-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 10px 0;
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #0284c7;
+  outline: none;
+}
+
+.pulse-result-box {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.pulse-result-box.in-mod {
+  background: #f0fdf4;
+  border-color: #22c55e;
+}
+
+.pulse-result-box.in-high {
+  background: #fffbeb;
+  border-color: #f59e0b;
+}
+
+.pulse-result-box.in-danger {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+.pulse-res-bpm {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.pulse-res-bpm strong {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.pulse-res-zone {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-top: 4px;
+  color: var(--text-secondary);
+}
+
+/* ガイドライン解説スタイル */
+.guide-lead {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.guide-point-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.guide-point-item {
+  display: flex;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+}
+
+.point-badge {
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  height: fit-content;
+  white-space: nowrap;
+}
+
+.point-content strong {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.point-content p {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.qa-box {
+  background: #f8fafc;
+  border-left: 4px solid #0284c7;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.qa-q {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0369a1;
+  margin-bottom: 6px;
+}
+
+.qa-a p {
+  font-size: 0.78rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin: 0 0 6px 0;
+}
+
+.qa-a p:last-child {
+  margin-bottom: 0;
+}
+
+/* Borg対応表 */
+.borg-detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin-top: 8px;
+}
+
+.borg-detail-table th,
+.borg-detail-table td {
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.borg-detail-table th {
+  background: #f1f5f9;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.borg-detail-table tr.highlight-mod {
+  background: #f0fdf4;
+}
+
+.borg-detail-table tr.highlight-high {
+  background: #fffbeb;
+}
+
+.borg-detail-table tr.highlight-danger {
+  background: #fef2f2;
+}
+
+/* 安全管理・中止基準スタイル */
+.safety-alert-card.danger-card {
+  border-left: 5px solid #dc2626;
+  background: #fffbfb;
+}
+
+.safety-alert-card.warning-card {
+  border-left: 5px solid #f59e0b;
+  background: #fffdf9;
+}
+
+.safety-alert-card.tips-card {
+  border-left: 5px solid #0284c7;
+  background: #f8fbfe;
+}
+
+.safety-sub {
+  font-size: 0.8rem;
+  color: #991b1b;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.safety-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .safety-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.safety-box {
+  background: #ffffff;
+  border: 1px solid #fee2e2;
+  border-radius: var(--radius-sm);
+  padding: 10px;
+}
+
+.safety-box h3 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #991b1b;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #fee2e2;
+  padding-bottom: 4px;
+}
+
+.safety-box ul,
+.safety-list {
+  padding-left: 18px;
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.safety-item {
+  margin-bottom: 8px;
+}
+
+.safety-item strong {
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.safety-item p {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.tips-content h3 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0369a1;
+  margin-bottom: 6px;
+}
+
+.tips-content p {
+  font-size: 0.78rem;
+  color: var(--text-primary);
+  line-height: 1.55;
+  margin: 0;
+}
+

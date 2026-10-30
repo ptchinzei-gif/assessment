@@ -22,8 +22,9 @@
           <select id="assessment-select" class="assessment-dropdown" aria-label="評価項目の選択">
             <option value="walk10m" selected>🚶 10m歩行テスト</option>
             <option value="sppb">🪑 SPPB（高齢者総合機能）</option>
+            <option value="bbs">⚖️ BBS（バーグバランススケール）</option>
+            <option value="exercise">💓 運動負荷・心拍設定 (AHAガイドライン)</option>
             <option value="grip" disabled>✊ 握力測定 (準備中)</option>
-            <option value="bbs" disabled>⚖️ BBS (準備中)</option>
           </select>
         </div>
       </div>
@@ -612,6 +613,569 @@
       </main>
     </div>
 
+    <!-- ==========================================
+         VIEW 3: BBS（バーグ・バランス・スケール）
+         ========================================== -->
+    <div id="view-bbs" class="assessment-view">
+      <nav class="nav-tabs" role="tablist">
+        <button class="tab-btn active" data-tab="bbs-measure" role="tab" aria-selected="true">
+          <span class="tab-icon">📋</span> 採点・入力
+        </button>
+        <button class="tab-btn" data-tab="bbs-feedback" role="tab" aria-selected="false">
+          <span class="tab-icon">📊</span> 総合判定・FB
+        </button>
+        <button class="tab-btn" data-tab="bbs-manual" role="tab" aria-selected="false">
+          <span class="tab-icon">📖</span> 手順マニュアル
+        </button>
+      </nav>
+
+      <main class="app-main">
+        <!-- BBS: 採点・入力タブ -->
+        <section id="tab-bbs-measure" class="tab-pane active" role="tabpanel">
+          <!-- スコアバナー -->
+          <div class="bbs-score-banner">
+            <div class="score-banner-left">
+              <span class="bbs-badge">BBS 合計得点</span>
+              <div class="bbs-total-display">
+                <span class="total-score-num" id="bbs-total-score">0</span>
+                <span class="total-score-max">/ 56点</span>
+              </div>
+            </div>
+            <div class="score-banner-right" id="bbs-banner-rank">
+              <span class="rank-badge" id="bbs-rank-badge">未測定</span>
+              <span class="rank-sub" id="bbs-rank-desc">全14項目を入力してください</span>
+            </div>
+          </div>
+
+          <!-- コントロールバー（進捗 & リセット） -->
+          <div class="bbs-controls-row">
+            <span class="bbs-progress-text" id="bbs-progress-text">入力完了: 0 / 14項目</span>
+            <button type="button" class="btn-text-danger" id="btn-clear-bbs">BBSをリセット</button>
+          </div>
+
+          <!-- 14項目のコンテナ（JSで自動展開） -->
+          <div class="bbs-items-container" id="bbs-items-container"></div>
+
+          <div class="action-footer">
+            <button id="bbs-quick-copy-btn" class="primary-btn">
+              <span class="btn-icon">📋</span> BBSカルテ用テキストをコピー
+            </button>
+          </div>
+        </section>
+
+        <!-- BBS: 総合判定・FBタブ -->
+        <section id="tab-bbs-feedback" class="tab-pane" role="tabpanel">
+          <div class="fb-card">
+            <div class="fb-header">
+              <h2>BBS バランス総合判定</h2>
+              <p class="fb-sub">日常生活での転倒リスクと移動自立度の評価（56点満点）</p>
+            </div>
+
+            <div class="sppb-overall-card">
+              <div class="bbs-gauge" id="fb-bbs-gauge">
+                <div class="gauge-number" id="fb-bbs-total-score">0</div>
+                <div class="gauge-max">/ 56点</div>
+              </div>
+              <div class="sppb-gauge-info">
+                <h3 id="fb-bbs-rank-title">評価中</h3>
+                <p id="fb-bbs-rank-detail">14項目を入力すると判定が表示されます</p>
+              </div>
+            </div>
+
+            <!-- カットオフ基準ガイド -->
+            <div class="cutoff-guide">
+              <h3 class="guide-heading">⚠️ 臨床判断のカットオフ基準（Berg et al.）</h3>
+              <ul class="cutoff-list">
+                <li><strong class="tag-success">45〜56点（自立域・転倒低リスク）</strong>: 屋外歩行可能・安全な移動自立</li>
+                <li><strong class="tag-warning">41〜44点（境界域・転倒リスク増加）</strong>: 歩行自立に注意・補助具や環境整備の検討推奨</li>
+                <li><strong class="tag-danger">0〜40点（転倒ハイリスク・中等度〜重度低下）</strong>: 転倒リスク極めて高・歩行器または車椅子移動、介助・見守り必須（40点以下は100%近い転倒率）</li>
+              </ul>
+            </div>
+
+            <!-- 患者・家族向け説明例文 -->
+            <div class="patient-talk-card">
+              <h3>🗣️ 患者さん・ご家族へのフィードバック例</h3>
+              <div class="talk-box" id="bbs-patient-talk-sample">
+                「テストの結果、日常動作におけるバランス能力は安全な範囲を保てています。引き続き転倒に気をつけて活動を続けていきましょう。」
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- BBS: 手順マニュアルタブ -->
+        <section id="tab-bbs-manual" class="tab-pane" role="tabpanel">
+          <div class="manual-container">
+            <div class="manual-card">
+              <h2>Berg Balance Scale (BBS) 実施規程</h2>
+              <p class="manual-desc">各動作の自立度・所要時間・介助量に基づき、0〜4点で客観的に採点します。</p>
+
+              <div class="manual-section">
+                <h3>必要備品・準備物</h3>
+                <ul class="rule-list">
+                  <li>肘掛け付きの椅子および肘掛けのない椅子（高さ約43〜45cm）</li>
+                  <li>ストップウォッチ（アプリ内タイマー利用可能）</li>
+                  <li>メジャー（上肢前方リーチ用：壁に固定または手に持つ）</li>
+                  <li>踏み台またはステップ（高さ約15〜20cm）</li>
+                  <li>床から拾う物品（スリッパ、ペンなど）</li>
+                </ul>
+              </div>
+
+              <div class="manual-section">
+                <h3>採点時の統一ルール</h3>
+                <ul class="rule-list">
+                  <li>患者の能力を最も正確に示す「最低限の達成レベル」を記録します。</li>
+                  <li>時間が規定されている項目（2分立位、10秒片脚立位など）は、規定時間に達した時点で終了します。</li>
+                  <li>安全のため、スタッフは常に転倒時に支持できる位置で見守り・介助を行ってください。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ==========================================
+         VIEW 4: 運動負荷・心拍設定（AHA/ASA 2026準拠）
+         ========================================== -->
+    <div id="view-exercise" class="assessment-view">
+      <nav class="nav-tabs" role="tablist">
+        <button class="tab-btn active" data-tab="ex-calc" role="tab" aria-selected="true">
+          <span class="tab-icon">🔢</span> 心拍・負荷計算
+        </button>
+        <button class="tab-btn" data-tab="ex-guide" role="tab" aria-selected="false">
+          <span class="tab-icon">📚</span> ガイドライン解説・Borg
+        </button>
+        <button class="tab-btn" data-tab="ex-safety" role="tab" aria-selected="false">
+          <span class="tab-icon">⚠️</span> 安全管理・中止基準
+        </button>
+      </nav>
+
+      <main class="app-main">
+        <!-- 運動負荷: 計算タブ -->
+        <section id="tab-ex-calc" class="tab-pane active" role="tabpanel">
+          
+          <!-- 入力設定カード -->
+          <div class="ex-input-card">
+            <div class="ex-card-title-row">
+              <span class="ex-sec-badge">Step 1</span>
+              <h2 class="ex-card-title">患者情報の入力</h2>
+            </div>
+            
+            <div class="ex-grid-form">
+              <!-- 年齢 -->
+              <div class="ex-form-group">
+                <label for="ex-input-age" class="ex-label">
+                  年齢 <span class="ex-required">必須</span>
+                </label>
+                <div class="ex-input-wrap">
+                  <input type="number" id="ex-input-age" class="ex-num-input" value="70" min="20" max="105" inputmode="numeric">
+                  <span class="ex-unit">歳</span>
+                </div>
+              </div>
+
+              <!-- 安静時心拍数 -->
+              <div class="ex-form-group">
+                <label for="ex-input-rest-hr" class="ex-label">
+                  安静時心拍数 (HRrest) <span class="ex-required">必須</span>
+                </label>
+                <div class="ex-input-wrap">
+                  <input type="number" id="ex-input-rest-hr" class="ex-num-input" value="72" min="40" max="130" inputmode="numeric">
+                  <span class="ex-unit">bpm</span>
+                </div>
+              </div>
+
+              <!-- β遮断薬の内服 -->
+              <div class="ex-form-group full-width">
+                <label class="ex-label">
+                  β遮断薬（ベータブロッカー）の内服
+                  <span class="ex-hint-tag" title="脈拍を抑える薬（アーチスト、メインテート等）">脈拍抑制薬</span>
+                </label>
+                <div class="ex-pill-group">
+                  <button type="button" class="ex-pill-btn active" id="btn-beta-no" data-beta="false">
+                    ❌ なし（通常計算）
+                  </button>
+                  <button type="button" class="ex-pill-btn" id="btn-beta-yes" data-beta="true">
+                    💊 あり（β遮断薬補正）
+                  </button>
+                </div>
+                <p class="ex-form-help" id="beta-help-text">
+                  ※β遮断薬内服時は脈拍の上限が抑えられるため、専用の補正式を適用します。
+                </p>
+              </div>
+
+              <!-- 運動種目（β遮断薬あり時の詳細式用） -->
+              <div class="ex-form-group full-width" id="modality-select-group" style="display:none;">
+                <label class="ex-label">運動種目の選択（Keteyian詳細式）</label>
+                <div class="ex-pill-group">
+                  <button type="button" class="ex-pill-btn active" id="btn-modal-walk" data-modal="walk">
+                    🚶 歩行・トレッドミル
+                  </button>
+                  <button type="button" class="ex-pill-btn" id="btn-modal-bike" data-modal="bike">
+                    🚴 自転車エルゴメーター
+                  </button>
+                </div>
+              </div>
+
+              <!-- 最大心拍数推測式の選択 -->
+              <div class="ex-form-group full-width">
+                <label for="ex-formula-select" class="ex-label">最大心拍数（HRmax）推測式</label>
+                <select id="ex-formula-select" class="ex-dropdown">
+                  <option value="tanaka" selected>Tanaka式 [208 - 0.7×年齢] (高齢者・脳卒中推奨)</option>
+                  <option value="standard">一般式 [220 - 年齢]</option>
+                  <option value="brawner" disabled>Brawner補正式 [164 - 0.7×年齢] (β遮断薬時)</option>
+                  <option value="keteyian" disabled>Keteyian補正式 [119 + 0.5×HRrest - 0.5×年齢 - 機器] (β遮断薬時)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 推定最大心拍数バナー -->
+          <div class="ex-summary-banner">
+            <div class="ex-banner-item">
+              <span class="ex-banner-label">推定最大心拍数 (HRmax)</span>
+              <div class="ex-banner-val">
+                <strong id="disp-hrmax-val">159</strong> <small>bpm</small>
+              </div>
+              <span class="ex-banner-sub" id="disp-hrmax-formula">計算式: 208 - (0.7 × 70)</span>
+            </div>
+            <div class="ex-banner-item">
+              <span class="ex-banner-label">予備心拍数 (HRR)</span>
+              <div class="ex-banner-val">
+                <strong id="disp-hrr-val">87</strong> <small>bpm</small>
+              </div>
+              <span class="ex-banner-sub">HRmax - 安静時心拍数</span>
+            </div>
+          </div>
+
+          <!-- 運動強度・目標心拍数の並列比較カード -->
+          <div class="ex-comparison-card">
+            <div class="ex-card-title-row">
+              <span class="ex-sec-badge">Step 2</span>
+              <h2 class="ex-card-title">目標心拍数・強度の並列比較</h2>
+            </div>
+            <p class="ex-card-desc">
+              ガイドライン（5.5）推奨の**予備心拍数（HRR）法**と、日常で広く使われる**最大心拍数比（%HRmax）法**の目標値を並列表示しています。
+            </p>
+
+            <!-- 比較テーブル表示 -->
+            <div class="ex-table-wrapper">
+              <table class="ex-compare-table">
+                <thead>
+                  <tr>
+                    <th>運動強度レベル</th>
+                    <th class="col-hrr">
+                      ① 予備心拍数法 (HRR)<br>
+                      <small class="badge-rec">ガイドライン推奨</small>
+                    </th>
+                    <th class="col-hrmax">
+                      ② 最大心拍数比 (%HRmax)<br>
+                      <small>一般参照法</small>
+                    </th>
+                    <th>自覚強度 (Borg)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- 中等度強度 (Moderate) -->
+                  <tr class="row-moderate">
+                    <td class="col-level">
+                      <div class="level-indicator moderate"></div>
+                      <strong>中等度強度</strong><br>
+                      <span class="level-sub">歩行持久力・再発予防</span>
+                    </td>
+                    <td class="col-hrr-val">
+                      <strong class="target-bpm" id="disp-hrr-mod">107 〜 124</strong> <small>bpm</small><br>
+                      <span class="pct-tag">40% 〜 60% HRR</span>
+                    </td>
+                    <td class="col-hrmax-val">
+                      <strong class="target-bpm" id="disp-hrmax-mod">103 〜 119</strong> <small>bpm</small><br>
+                      <span class="pct-tag">65% 〜 75% HRmax</span>
+                    </td>
+                    <td class="col-borg">
+                      <strong>Borg 11〜13</strong><br>
+                      <span class="borg-text">「楽である」〜「ややきつい」</span>
+                    </td>
+                  </tr>
+
+                  <!-- 高強度 (High) -->
+                  <tr class="row-high">
+                    <td class="col-level">
+                      <div class="level-indicator high"></div>
+                      <strong>高強度</strong><br>
+                      <span class="level-sub">歩行速度・距離の向上</span>
+                    </td>
+                    <td class="col-hrr-val">
+                      <strong class="target-bpm" id="disp-hrr-high">125 〜 142</strong> <small>bpm</small><br>
+                      <span class="pct-tag">> 60% 〜 80% HRR</span>
+                    </td>
+                    <td class="col-hrmax-val">
+                      <strong class="target-bpm" id="disp-hrmax-high">> 119</strong> <small>bpm</small><br>
+                      <span class="pct-tag">> 75% HRmax</span>
+                    </td>
+                    <td class="col-borg">
+                      <strong>Borg 14〜16</strong><br>
+                      <span class="borg-text">「きつい」</span>
+                    </td>
+                  </tr>
+
+                  <!-- 安全上限・危険域 -->
+                  <tr class="row-danger">
+                    <td class="col-level">
+                      <div class="level-indicator danger"></div>
+                      <strong>安全上限・注意</strong><br>
+                      <span class="level-sub">運動中止・減速の目安</span>
+                    </td>
+                    <td class="col-hrr-val">
+                      <strong class="target-bpm danger-text" id="disp-hrr-danger">> 142</strong> <small>bpm</small><br>
+                      <span class="pct-tag">80% HRR 超過</span>
+                    </td>
+                    <td class="col-hrmax-val">
+                      <strong class="target-bpm danger-text" id="disp-hrmax-danger">> 135</strong> <small>bpm</small><br>
+                      <span class="pct-tag">85% HRmax 超過</span>
+                    </td>
+                    <td class="col-borg">
+                      <strong>Borg 17以上</strong><br>
+                      <span class="borg-text danger-text">「かなりきつい」</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 視覚的心拍ゾーンバー -->
+            <div class="hr-zone-visualizer">
+              <div class="zone-bar-header">
+                <span>心拍ゾーンの全体マップ（HRR基準）</span>
+                <span class="zone-current-text" id="zone-map-rest">安静時: 72 bpm</span>
+              </div>
+              <div class="zone-bar-container">
+                <div class="zone-segment zone-rest" style="flex: 1;" title="安静〜ウォームアップ">安静</div>
+                <div class="zone-segment zone-moderate" style="flex: 2;" title="中等度強度 (40-60%)">中等度 40-60%</div>
+                <div class="zone-segment zone-high" style="flex: 2;" title="高強度 (60-80%)">高強度 60-80%</div>
+                <div class="zone-segment zone-limit" style="flex: 1.5;" title="過負荷・危険域 (>80%)">危険域</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 運動中パルスチェック支援ツール -->
+          <div class="pulse-check-card">
+            <div class="ex-card-title-row">
+              <span class="ex-sec-badge">Step 3</span>
+              <h2 class="ex-card-title">運動中の脈拍チェック（10秒測定支援）</h2>
+            </div>
+            <p class="ex-card-desc">運動直後に橈骨動脈や心拍計で測った「10秒間の脈拍数」を入力すると、即座に現在の強度を判定します。</p>
+
+            <div class="pulse-check-control">
+              <div class="pulse-input-group">
+                <label for="input-10s-pulse" class="pulse-label">10秒間の脈拍</label>
+                <div class="pulse-input-wrap">
+                  <input type="number" id="input-10s-pulse" class="pulse-num-input" placeholder="0" min="5" max="40" inputmode="numeric">
+                  <span class="pulse-unit">回 / 10秒</span>
+                </div>
+              </div>
+              <div class="pulse-result-box" id="pulse-result-box">
+                <div class="pulse-res-bpm">
+                  換算心拍数: <strong id="disp-calc-bpm">--</strong> <small>bpm</small>
+                </div>
+                <div class="pulse-res-zone" id="disp-calc-zone">脈拍数を入力してください</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- クイックカルテコピーボタン -->
+          <div class="action-footer">
+            <button id="ex-quick-copy-btn" class="primary-btn">
+              <span class="btn-icon">📋</span> 運動処方カルテ用テキストをコピー
+            </button>
+          </div>
+        </section>
+
+        <!-- 運動負荷: ガイドライン解説・Borgタブ -->
+        <section id="tab-ex-guide" class="tab-pane" role="tabpanel">
+          <div class="guide-container">
+            <!-- ガイドラインの要点 -->
+            <div class="guide-card">
+              <h2>📖 AHA/ASA 2026年ガイドライン「5.5 歩行と移動」の要点</h2>
+              <p class="guide-lead">
+                脳卒中後のリハビリにおいて、歩行能力や持久力を最大限改善させるためには**「適切な負荷（中等度〜高強度）」での課題特異的歩行練習**が強く推奨されています。
+              </p>
+
+              <div class="guide-point-list">
+                <div class="guide-point-item">
+                  <div class="point-badge">推奨 1</div>
+                  <div class="point-content">
+                    <strong>エビデンスに基づく目標指向型の歩行リハビリ（Class 1, LOE A）</strong>
+                    <p>単なる平地歩行だけでなく、明確な目標を立てた集中的なリハビリテーションが歩行能力と移動性を向上させます。</p>
+                  </div>
+                </div>
+
+                <div class="guide-point-item">
+                  <div class="point-badge">推奨 3</div>
+                  <div class="point-content">
+                    <strong>中等度〜高強度の歩行練習・インターバルトレーニング（Class 2a, LOE B-R）</strong>
+                    <p>亜急性期または慢性期の脳卒中患者において、<strong>40〜60% HRR（中等度）または >60% HRR（高強度）</strong>での歩行練習や高強度インターバルトレーニング（HIIT）が、歩行持久力（6分間歩行テスト）、歩行速度、バランスの改善に有効です。</p>
+                  </div>
+                </div>
+
+                <div class="guide-point-item">
+                  <div class="point-badge">推奨 9</div>
+                  <div class="point-content">
+                    <strong>高用量・十分な歩数練習（Class 2a, LOE B-R）</strong>
+                    <p>少なくとも4〜8週間にわたり、週5回・1回1〜2時間、中等度〜高強度の循環器負荷と十分なステップ数を確保することが歩行速度と持久力の獲得に効果的です。</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 新人向け：2つの計算式の違い -->
+            <div class="guide-card">
+              <h2>💡 新人向け：なぜ「予備心拍数（HRR）」が推奨されるのか？</h2>
+              <div class="qa-box">
+                <h3 class="qa-q">Q. 「220 - 年齢」にパーセントを掛けるだけじゃダメなの？</h3>
+                <div class="qa-a">
+                  <p>
+                    <strong>A. 脳卒中患者さんは安静時心拍数が高めになる傾向があるためです。</strong>
+                  </p>
+                  <p>
+                    一般的な「最大心拍数 × %」の計算（%HRmax）だと、安静時の心拍数が考慮されません。例えば、安静時がすでに90bpmある患者さんの場合、%HRmaxで計算すると目標心拍数が安静時とほとんど変わらない値になってしまい、<strong>「十分な運動負荷がかかっていない（強度の過小設定）」</strong>になりやすい問題があります。
+                  </p>
+                  <p>
+                    ガイドラインが推奨する**予備心拍数（HRR：カルボーネン法）**は、<code>HRmax - 安静時心拍数</code> の「運動で使える余力（予備能）」に対して負荷率を掛けて計算するため、患者さん一人ひとりの心肺状態に合った正確な運動強度を設定できます。
+                  </p>
+                </div>
+              </div>
+
+              <div class="qa-box">
+                <h3 class="qa-q">Q. β遮断薬（ベータブロッカー）を飲んでいる患者さんの注意点は？</h3>
+                <div class="qa-a">
+                  <p>
+                    <strong>A. 薬の作用で脈拍の上限が強制的に抑えられているため、一般式を使うと過負荷になり危険です！</strong>
+                  </p>
+                  <p>
+                    β遮断薬（メインテート、アーチスト等）を服用中の方は、最大心拍数が約30〜40bpm低くなります。一般式（220-年齢）で計算した心拍数を目指してしまうと、患者さんにとっては限界を超えた「命に関わる危険な超高強度」になってしまいます。そのため、ガイドラインで示されている<strong>Brawner式 [164 - 0.7×年齢]</strong>などの補正式を必ず使用してください。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 自覚的運動強度（Borgスケール）対応表 -->
+            <div class="guide-card">
+              <h2>📊 自覚的運動強度（Borgスケール）との連動表</h2>
+              <p class="guide-desc">心拍計がない場合や不整脈がある場合、また自覚的な疲労感との乖離がないか確認するために必ず併用します。</p>
+
+              <table class="borg-detail-table">
+                <thead>
+                  <tr>
+                    <th>Borg (6-20)</th>
+                    <th>修正Borg (0-10)</th>
+                    <th>自覚症状・患者さんの表現</th>
+                    <th>ガイドライン運動強度</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>6 〜 8</td>
+                    <td>0 〜 1</td>
+                    <td>非常に楽である・安静</td>
+                    <td>安静・準備運動</td>
+                  </tr>
+                  <tr>
+                    <td>9 〜 10</td>
+                    <td>2</td>
+                    <td>かなり楽である</td>
+                    <td>低強度</td>
+                  </tr>
+                  <tr class="highlight-mod">
+                    <td><strong>11 〜 13</strong></td>
+                    <td><strong>3 〜 4</strong></td>
+                    <td><strong>「楽である」〜「ややきつい」<br><small>（息は少し弾むが会話ができる）</small></strong></td>
+                    <td>🟢 <strong>中等度強度 (40-60% HRR)</strong><br><small>歩行持久力向上</small></td>
+                  </tr>
+                  <tr class="highlight-high">
+                    <td><strong>14 〜 16</strong></td>
+                    <td><strong>5 〜 6</strong></td>
+                    <td><strong>「きつい」<br><small>（息が上がり短い会話しかできない）</small></strong></td>
+                    <td>🟠 <strong>高強度 (>60-80% HRR)</strong><br><small>歩行速度・距離向上</small></td>
+                  </tr>
+                  <tr class="highlight-danger">
+                    <td>17 〜 20</td>
+                    <td>7 〜 10</td>
+                    <td>「かなりきつい」〜「限界」<br><small>（会話不能・苦痛）</small></td>
+                    <td>🔴 <strong>危険域（過負荷・中止）</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 運動負荷: 安全管理・中止基準タブ -->
+        <section id="tab-ex-safety" class="tab-pane" role="tabpanel">
+          <div class="safety-container">
+            
+            <div class="safety-alert-card danger-card">
+              <h2>🚨 リハビリを直ちに中止すべき基準（Red Flags）</h2>
+              <p class="safety-sub">以下の兆候が1つでも現れた場合は、直ちに運動を中断し、安静・医師への報告を行ってください。</p>
+
+              <div class="safety-grid">
+                <div class="safety-box">
+                  <h3>自覚症状・臨床サイン</h3>
+                  <ul>
+                    <li>胸の痛み・圧迫感・不快感（狭心症の疑い）</li>
+                    <li>急激な強い息切れ・呼吸困難・喘鳴</li>
+                    <li>めまい・立ちくらみ・ふらつき・眼前暗黒感</li>
+                    <li>顔面蒼白・冷や汗・口唇チアノーゼ</li>
+                    <li>運動誘発性の頭痛・嘔気・構音障害の悪化</li>
+                  </ul>
+                </div>
+                <div class="safety-box">
+                  <h3>バイタルサインの異常</h3>
+                  <ul>
+                    <li>目標心拍数の上限（>80% HRR）を大きく超過</li>
+                    <li>運動中に脈拍が逆に低下する（重篤な心機能不全兆候）</li>
+                    <li>収縮期血圧 <strong>> 200〜220 mmHg</strong> への異常上昇</li>
+                    <li>運動中に収縮期血圧が安静時より <strong>10 mmHg以上低下</strong></li>
+                    <li>頻発する不整脈・脈の著しい結滞</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="safety-alert-card warning-card">
+              <h2>⚠️ 運動開始前の確認事項（事前チェック）</h2>
+              <div class="safety-list">
+                <div class="safety-item">
+                  <strong>1. 発症後24時間以内の過度な早期離床の禁止（ガイドライン2.2）</strong>
+                  <p>発症24時間以内の高用量・積極的離床（歩行等）は神経学的悪化リスクがあるため推奨されません。離床は24〜48時間以降に段階的プロトコルで行います。</p>
+                </div>
+                <div class="safety-item">
+                  <strong>2. 安静時血圧の確認</strong>
+                  <p>安静時血圧が 収縮期 180 mmHg以上 または 拡張期 110 mmHg以上の場合は、開始前に医師または主治医への確認が必要です。</p>
+                </div>
+                <div class="safety-item">
+                  <strong>3. 負荷前メディカルチェック（ガイドライン5.1）</strong>
+                  <p>高強度運動を導入する際は、事前に運動負荷試験または主治医によるメディカルクリアランス（許可）の取得が推奨されます。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="safety-alert-card tips-card">
+              <h2>💡 新人指導用：脳卒中患者特有の「落とし穴」</h2>
+              <div class="tips-content">
+                <h3>「麻痺側の疲労」と「心肺負荷」のズレに注意！</h3>
+                <p>
+                  脳卒中患者さんは、心臓や肺にはまだ余力があっても、<strong>麻痺側の足が先に疲れて動かなくなる（つまづきやすくなる）</strong>ケースが非常に多く見られます。<br>
+                  心拍数メーターが「中等度」に達していても、麻痺側下肢の振り出し不良や膝折れの兆候が見られた場合は、転倒事故を防ぐために直ちに休憩を挟むか、座位エルゴメーターなどに切り替えてください。
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+
     <!-- トースト通知 -->
     <div id="copy-toast" class="toast hidden">カルテ用テキストをクリップボードにコピーしました！</div>
 
@@ -699,8 +1263,221 @@
           timerInterval: null
         },
         totalScore: 0
+      },
+
+      bbs: {
+        scores: {
+          1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null,
+          8: null, 9: null, 10: null, 11: null, 12: null, 13: null, 14: null
+        },
+        totalScore: 0,
+        completedCount: 0,
+        timers: {}
+      },
+
+      exercise: {
+        age: 70,
+        restHr: 72,
+        hasBetaBlocker: false,
+        modality: 'walk', // 'walk' | 'bike'
+        formula: 'tanaka', // 'tanaka' | 'standard' | 'brawner' | 'keteyian'
+        hrMax: 159,
+        hrr: 87,
+        hrrModerate: { min: 107, max: 124 },
+        hrrHigh: { min: 125, max: 142 },
+        hrMaxModerate: { min: 103, max: 119 },
+        hrMaxHigh: { min: 120, max: 142 },
+        last10sPulse: null
       }
     };
+
+    // BBS 14項目 マスターデータ規程
+    const BBS_ITEMS = [
+      {
+        id: 1,
+        title: "1. 座位から立位",
+        desc: "指示:「手を使わずに立ってみてください」",
+        options: [
+          { score: 4, text: "4点: 手を使わずに自立して立てる" },
+          { score: 3, text: "3点: 手を使って自立して立てる" },
+          { score: 2, text: "2点: 数回の試みで手を使って立てる" },
+          { score: 1, text: "1点: 立つために最小限の介助が必要" },
+          { score: 0, text: "0点: 中等度〜最大の介助が必要" }
+        ]
+      },
+      {
+        id: 2,
+        title: "2. 支持なし立位保持（2分間）",
+        desc: "指示:「何にもつかまらずに2分間安全に立っていてください」",
+        hasTimer: true,
+        targetSec: 120,
+        options: [
+          { score: 4, text: "4点: 2分間安全に立ち続けられる" },
+          { score: 3, text: "3点: 見守りで2分間立ち続けられる" },
+          { score: 2, text: "2点: つかまらずに30秒間立てる" },
+          { score: 1, text: "1点: 数回の試みで30秒間立てる" },
+          { score: 0, text: "0点: つかまらずに30秒間立てない" }
+        ]
+      },
+      {
+        id: 3,
+        title: "3. 背もたれなし座位（足底接地2分間）",
+        desc: "指示:「腕を組んで背もたれから離れて2分間座っていてください」",
+        hasTimer: true,
+        targetSec: 120,
+        options: [
+          { score: 4, text: "4点: 2分間安全に座っていられる" },
+          { score: 3, text: "3点: 見守りで2分間座っていられる" },
+          { score: 2, text: "2点: 30秒間座っていられる" },
+          { score: 1, text: "1点: 10秒間座っていられる" },
+          { score: 0, text: "0点: 支えなしで10秒間座っていられない" }
+        ]
+      },
+      {
+        id: 4,
+        title: "4. 立位から着座",
+        desc: "指示:「椅子に座ってください」",
+        options: [
+          { score: 4, text: "4点: 手をほとんど使わずに安全に着座" },
+          { score: 3, text: "3点: 手でゆっくり動作をコントロールして着座" },
+          { score: 2, text: "2点: 椅子のヘリに足を当てて降下を制御" },
+          { score: 1, text: "1点: ひとりで座れるがドスンと落ちる" },
+          { score: 0, text: "0点: 座るために介助が必要" }
+        ]
+      },
+      {
+        id: 5,
+        title: "5. 移乗（椅子間・ベッド間）",
+        desc: "指示:「肘掛けのある椅子とない椅子の間を移動してください」",
+        options: [
+          { score: 4, text: "4点: 手をほとんど使わずに安全に移乗できる" },
+          { score: 3, text: "3点: 手をしっかり使えば安全に移乗できる" },
+          { score: 2, text: "2点: 声かけや見守りがあれば移乗できる" },
+          { score: 1, text: "1点: 1名の介助が必要" },
+          { score: 0, text: "0点: 2名の介助または機械介助が必要" }
+        ]
+      },
+      {
+        id: 6,
+        title: "6. 閉眼立位（支持なし10秒間）",
+        desc: "指示:「目を閉じて10秒間じっと立っていてください」",
+        hasTimer: true,
+        targetSec: 10,
+        options: [
+          { score: 4, text: "4点: 目を閉じて10秒間安全に保持できる" },
+          { score: 3, text: "3点: 見守りがあれば10秒間保持できる" },
+          { score: 2, text: "2点: 3秒間保持できる" },
+          { score: 1, text: "1点: 3秒保持できないが目を閉じていられる" },
+          { score: 0, text: "0点: 倒れないように介助が必要" }
+        ]
+      },
+      {
+        id: 7,
+        title: "7. 閉脚立位（両足を揃えて1分間）",
+        desc: "指示:「両足をくっつけて1分間立っていてください」",
+        hasTimer: true,
+        targetSec: 60,
+        options: [
+          { score: 4, text: "4点: 両足を揃えて安全に1分間立てる" },
+          { score: 3, text: "3点: 見守りで両足を揃えて1分間立てる" },
+          { score: 2, text: "2点: 自力で揃えられるが30秒間保持" },
+          { score: 1, text: "1点: 足を揃える手助けが必要だが15秒保持" },
+          { score: 0, text: "0点: 介助が必要で15秒間保持できない" }
+        ]
+      },
+      {
+        id: 8,
+        title: "8. 上肢前方リーチ（25cm以上）",
+        desc: "指示:「腕を前に伸ばし、指先をできるだけ遠くまで伸ばしてください」",
+        options: [
+          { score: 4, text: "4点: 25cm以上前に伸ばせる" },
+          { score: 3, text: "3点: 12.5cm以上前に伸ばせる" },
+          { score: 2, text: "2点: 5cm以上前に伸ばせる" },
+          { score: 1, text: "1点: 前に伸ばせるが5cm未満/見守りが必要" },
+          { score: 0, text: "0点: 前に伸ばそうとすると倒れそうになる" }
+        ]
+      },
+      {
+        id: 9,
+        title: "9. 床の物を拾う",
+        desc: "指示:「足元の前にあるスリッパ/物を拾ってください」",
+        options: [
+          { score: 4, text: "4点: 容易に安全に物を拾える" },
+          { score: 3, text: "3点: 拾えるが見守りが必要" },
+          { score: 2, text: "2点: 拾えないが物から2〜5cmまで手が届く" },
+          { score: 1, text: "1点: 拾おうとするとバランスを崩す/見守り" },
+          { score: 0, text: "0点: 試みられない/介助が必要" }
+        ]
+      },
+      {
+        id: 10,
+        title: "10. 左右を振り返る",
+        desc: "指示:「右肩、左肩の向こうを順番に後ろまで振り返ってください」",
+        options: [
+          { score: 4, text: "4点: 両側ともしっかり振り返り体重移動も良好" },
+          { score: 3, text: "3点: 片側だけしっかり振り返れる" },
+          { score: 2, text: "2点: 横を見る程度しか振り返れない" },
+          { score: 1, text: "1点: 振り返るときに見守りが必要" },
+          { score: 0, text: "0点: 倒れないように介助が必要" }
+        ]
+      },
+      {
+        id: 11,
+        title: "11. 360度方向転換（1回転）",
+        desc: "指示:「その場でぐるっと1回転して止まり、反対にも回ってください」",
+        hasTimer: true,
+        targetSec: 4,
+        options: [
+          { score: 4, text: "4点: 各方向4秒以内で安全に1回転できる" },
+          { score: 3, text: "3点: 片方向のみ4秒以内で1回転できる" },
+          { score: 2, text: "2点: 安全だが4秒以上ゆっくりかかる" },
+          { score: 1, text: "1点: 回るときに近くで見守りが必要" },
+          { score: 0, text: "0点: 回転に介助が必要" }
+        ]
+      },
+      {
+        id: 12,
+        title: "12. 段差・踏み台への足踏み（計8回）",
+        desc: "指示:「台の上に足を交互に片足ずつ乗せて下ろしてください（計8回）」",
+        hasTimer: true,
+        targetSec: 20,
+        options: [
+          { score: 4, text: "4点: 20秒以内に安全に8回完了できる" },
+          { score: 3, text: "3点: 20秒以上かけて安全に8回完了できる" },
+          { score: 2, text: "2点: 見守りなしで4回完了できる" },
+          { score: 1, text: "1点: 最小限の介助で2回以上できる" },
+          { score: 0, text: "0点: 転倒防止の介助が必要" }
+        ]
+      },
+      {
+        id: 13,
+        title: "13. タンデム立位（一直線のつぎ足で30秒）",
+        desc: "指示:「片足をもう片方の足の真ん前につけて30秒間立ってください」",
+        hasTimer: true,
+        targetSec: 30,
+        options: [
+          { score: 4, text: "4点: つぎ足で30秒間自立して立てる" },
+          { score: 3, text: "3点: 少し前足をずらせば30秒間立てる" },
+          { score: 2, text: "2点: 小さな歩幅なら30秒間立てる" },
+          { score: 1, text: "1点: 足の位置づけ介助があれば15秒立てる" },
+          { score: 0, text: "0点: 踏み出すとバランスを崩す" }
+        ]
+      },
+      {
+        id: 14,
+        title: "14. 片脚立位（支持なし10秒間）",
+        desc: "指示:「何にもつかまらずに片足で10秒間立ってください」",
+        hasTimer: true,
+        targetSec: 10,
+        options: [
+          { score: 4, text: "4点: 自立して片脚で10秒以上立てる" },
+          { score: 3, text: "3点: 自立して片脚で5〜9秒間立てる" },
+          { score: 2, text: "2点: 自立して片脚で3〜4秒間立てる" },
+          { score: 1, text: "1点: 試みるが3秒未満で足を着く" },
+          { score: 0, text: "0点: 試みられない/介助が必要" }
+        ]
+      }
+    ];
 
     const BENCHMARKS_10M = {
       male: {
@@ -797,11 +1574,15 @@
       setupHeaderEvents();
       setupWalk10mEvents();
       setupSppbEvents();
+      setupBbsEvents();
+      setupExerciseEvents();
       setupCommonModalEvents();
 
       updateWalkUI();
       updateWalkFeedback();
       updateSppbUI();
+      updateBbsUI();
+      updateExerciseUI();
       console.log('RehaMetrics: 準備完了');
     }
 
@@ -833,9 +1614,17 @@
           if (confirm('10m歩行テストの全記録をリセットしますか？')) {
             resetWalkData();
           }
-        } else {
+        } else if (appState.currentAssessment === 'sppb') {
           if (confirm('SPPBの全記録をリセットしますか？')) {
             resetSppbData();
+          }
+        } else if (appState.currentAssessment === 'bbs') {
+          if (confirm('BBSの全記録をリセットしますか？')) {
+            resetBbsData();
+          }
+        } else if (appState.currentAssessment === 'exercise') {
+          if (confirm('運動負荷設定の入力を初期値に戻しますか？')) {
+            resetExerciseData();
           }
         }
       });
@@ -857,6 +1646,7 @@
 
             if (targetTabId === 'walk-feedback') updateWalkFeedback();
             if (targetTabId === 'sppb-feedback') updateSppbFeedback();
+            if (targetTabId === 'bbs-feedback') updateBbsFeedback();
           });
         });
       });
@@ -866,8 +1656,16 @@
       appState.currentAssessment = assessmentId;
       document.getElementById('view-walk10m').classList.toggle('active', assessmentId === 'walk10m');
       document.getElementById('view-sppb').classList.toggle('active', assessmentId === 'sppb');
+      document.getElementById('view-bbs').classList.toggle('active', assessmentId === 'bbs');
+      document.getElementById('view-exercise').classList.toggle('active', assessmentId === 'exercise');
       if (assessmentId === 'sppb') {
         updateSppbUI();
+      }
+      if (assessmentId === 'bbs') {
+        updateBbsUI();
+      }
+      if (assessmentId === 'exercise') {
+        updateExerciseUI();
       }
     }
 
@@ -1715,6 +2513,572 @@
       document.getElementById('btn-precheck-no').classList.remove('active');
       updateSppbScore();
       updateSppbUI();
+    }
+
+    // ========================================================
+    // BBS（バーグ・バランス・スケール）モジュール
+    // ========================================================
+    function setupBbsEvents() {
+      renderBbsItems();
+
+      const clearBtn = document.getElementById('btn-clear-bbs');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          if (confirm('BBSの全記録をリセットしますか？')) {
+            resetBbsData();
+          }
+        });
+      }
+
+      const copyBtn = document.getElementById('bbs-quick-copy-btn');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+          openChartModal('【BBS】カルテ転記', generateBbsChartText());
+        });
+      }
+    }
+
+    // 14項目のカードを描画
+    function renderBbsItems() {
+      const container = document.getElementById('bbs-items-container');
+      if (!container) return;
+
+      container.innerHTML = '';
+      BBS_ITEMS.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'bbs-item-card';
+        card.id = `bbs-card-${item.id}`;
+
+        const currentScore = appState.bbs.scores[item.id];
+        const scoreLabel = currentScore !== null ? `${currentScore}点` : '未';
+        if (currentScore !== null) card.classList.add('completed');
+
+        let timerHtml = '';
+        if (item.hasTimer) {
+          timerHtml = `
+            <div class="bbs-item-timer-bar">
+              <button type="button" class="bbs-timer-btn" id="bbs-timer-btn-${item.id}" onclick="toggleBbsItemTimer(${item.id}, ${item.targetSec})">
+                ⏱️ 計測スタート (${item.targetSec}秒)
+              </button>
+              <span class="bbs-timer-time" id="bbs-timer-disp-${item.id}">0.0秒</span>
+            </div>
+          `;
+        }
+
+        let optionsHtml = '';
+        item.options.forEach(opt => {
+          const isActive = currentScore === opt.score ? 'active' : '';
+          optionsHtml += `
+            <button type="button" class="bbs-opt-btn ${isActive}" data-item-id="${item.id}" data-score="${opt.score}" onclick="selectBbsScore(${item.id}, ${opt.score})">
+              <span>${opt.text}</span>
+            </button>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="bbs-item-head">
+            <div class="bbs-item-title-group">
+              <span class="bbs-item-num">${item.id}</span>
+              <span class="bbs-item-title">${item.title}</span>
+            </div>
+            <span class="bbs-item-score-badge ${currentScore !== null ? 'scored' : ''}" id="bbs-badge-${item.id}">${scoreLabel}</span>
+          </div>
+          <div class="bbs-item-desc">${item.desc}</div>
+          ${timerHtml}
+          <div class="bbs-options-grid">
+            ${optionsHtml}
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // 得点選択
+    function selectBbsScore(itemId, score) {
+      appState.bbs.scores[itemId] = score;
+      playStartBeep();
+      triggerVibration(40);
+      updateBbsScore();
+      updateBbsUI();
+
+      const card = document.getElementById(`bbs-card-${itemId}`);
+      if (card) {
+        card.classList.add('completed');
+        const badge = document.getElementById(`bbs-badge-${itemId}`);
+        if (badge) {
+          badge.textContent = `${score}点`;
+          badge.classList.add('scored');
+        }
+        card.querySelectorAll('.bbs-opt-btn').forEach(btn => {
+          const s = parseInt(btn.getAttribute('data-score'), 10);
+          btn.classList.toggle('active', s === score);
+        });
+      }
+    }
+
+    // タイマー機能
+    function toggleBbsItemTimer(itemId, targetSec) {
+      const timers = appState.bbs.timers;
+      const btn = document.getElementById(`bbs-timer-btn-${itemId}`);
+      const disp = document.getElementById(`bbs-timer-disp-${itemId}`);
+
+      if (!timers[itemId] || !timers[itemId].isRunning) {
+        playStartBeep();
+        triggerVibration(80);
+        const startTime = performance.now();
+        btn.classList.add('running');
+        btn.textContent = '⏹️ 停止';
+
+        const interval = setInterval(() => {
+          const elapsed = (performance.now() - startTime) / 1000;
+          disp.textContent = `${elapsed.toFixed(1)}秒 / ${targetSec}秒`;
+          if (elapsed >= targetSec) {
+            clearInterval(interval);
+            timers[itemId].isRunning = false;
+            btn.classList.remove('running');
+            btn.textContent = `✅ ${targetSec}秒達成！`;
+            playStopBeep();
+            triggerVibration([100, 50, 150]);
+          }
+        }, 100);
+
+        timers[itemId] = { isRunning: true, startTime, interval };
+      } else {
+        clearInterval(timers[itemId].interval);
+        timers[itemId].isRunning = false;
+        btn.classList.remove('running');
+        btn.textContent = '⏱️ 再スタート';
+        playStopBeep();
+        triggerVibration([60, 40, 60]);
+      }
+    }
+
+    // BBS スコア集計
+    function updateBbsScore() {
+      let total = 0;
+      let completed = 0;
+      for (let i = 1; i <= 14; i++) {
+        const s = appState.bbs.scores[i];
+        if (s !== null) {
+          total += s;
+          completed++;
+        }
+      }
+      appState.bbs.totalScore = total;
+      appState.bbs.completedCount = completed;
+    }
+
+    // BBS UI 更新
+    function updateBbsUI() {
+      updateBbsScore();
+      const b = appState.bbs;
+
+      const totalEl = document.getElementById('bbs-total-score');
+      if (totalEl) totalEl.textContent = b.totalScore;
+
+      const progEl = document.getElementById('bbs-progress-text');
+      if (progEl) progEl.textContent = `入力完了: ${b.completedCount} / 14項目`;
+
+      const badge = document.getElementById('bbs-rank-badge');
+      const desc = document.getElementById('bbs-rank-desc');
+
+      if (badge && desc) {
+        badge.classList.remove('good', 'moderate', 'severe');
+        if (b.completedCount === 0) {
+          badge.textContent = '未測定';
+          desc.textContent = '全14項目を入力してください';
+        } else if (b.totalScore >= 45) {
+          badge.textContent = '安全自立域 (45-56点)';
+          badge.classList.add('good');
+          desc.textContent = '転倒リスク低・自立歩行レベル';
+        } else if (b.totalScore >= 41) {
+          badge.textContent = '境界域 (41-44点)';
+          badge.classList.add('moderate');
+          desc.textContent = '転倒リスク軽度増加・見守り/補助具検討';
+        } else {
+          badge.textContent = '転倒ハイリスク (0-40点)';
+          badge.classList.add('severe');
+          desc.textContent = '転倒リスク極めて高・介助/車椅子移動';
+        }
+      }
+
+      updateBbsFeedback();
+    }
+
+    // BBS 総合判定フィードバック
+    function updateBbsFeedback() {
+      const b = appState.bbs;
+      const totalEl = document.getElementById('fb-bbs-total-score');
+      if (totalEl) totalEl.textContent = b.totalScore;
+
+      const gauge = document.getElementById('fb-bbs-gauge');
+      const title = document.getElementById('fb-bbs-rank-title');
+      const detail = document.getElementById('fb-bbs-rank-detail');
+      const sample = document.getElementById('bbs-patient-talk-sample');
+
+      if (!gauge || !title) return;
+
+      gauge.classList.remove('low-risk', 'medium-risk', 'high-risk');
+
+      if (b.completedCount === 0) {
+        title.textContent = '未測定';
+        detail.textContent = '14項目を入力すると判定が表示されます';
+        sample.textContent = '測定を行うと、患者さん・ご家族への説明用のアドバイス例文がここに表示されます。';
+        return;
+      }
+
+      if (b.totalScore >= 45) {
+        gauge.classList.add('low-risk');
+        title.textContent = '転倒リスク低（45〜56点）：自立移動可能群';
+        title.style.color = '#059669';
+        detail.textContent = '日常生活および屋外歩行におけるバランス能力は良好に維持されています。';
+        sample.textContent = `「今回のバランス測定は合計${b.totalScore}点（56点満点）でした。日常生活で転倒する危険性は低く、安全にご自身で動くことができています。この調子で現在の良い運動習慣を続けていきましょう。」`;
+      } else if (b.totalScore >= 41) {
+        gauge.classList.add('medium-risk');
+        title.textContent = '転倒リスク軽度増加（41〜44点）：境界群';
+        title.style.color = '#d97706';
+        detail.textContent = 'Bergカットオフ値（45点）を下回っており、ふらつきや不意の転倒に注意が必要な状態です。';
+        sample.textContent = `「今回のバランス測定は合計${b.totalScore}点でした。日常生活の動作は自立されていますが、方向転換や足元が不安定な場面でややバランスを崩しやすくなっています。杖などの補助具を活用したり、安全な足腰の運動を取り入れていきましょう。」`;
+      } else {
+        gauge.classList.add('high-risk');
+        title.textContent = '転倒ハイリスク（0〜40点）：要介助・移動制限群';
+        title.style.color = '#dc2626';
+        detail.textContent = '転倒の危険性が極めて高い状態です（研究上100%近い転倒リスク）。立ち座りや移動時の見守り・介助、歩行器や車椅子の使用が強く推奨されます。';
+        sample.textContent = `「今回のバランス測定は合計${b.totalScore}点でした。立ち上がりや片足に体重を乗せる動作で大きなふらつきが出やすいため、ご自宅での移動には必ず手すりや歩行器を使い、安全を最優先で介助サポートを受けながら進めていきましょう。」`;
+      }
+    }
+
+    // BBS カルテ用テキスト自動生成
+    function generateBbsChartText() {
+      const b = appState.bbs;
+      let txt = `【BBS（バーグ・バランス・スケール）】\n`;
+      txt += `・合計得点: ${b.totalScore} / 56点 (完了項目: ${b.completedCount}/14項目)\n`;
+
+      if (b.totalScore >= 45) {
+        txt += `・判定: 転倒リスク低（自立歩行域、45点以上）\n`;
+      } else if (b.totalScore >= 41) {
+        txt += `・判定: 転倒リスク軽度増加（境界域、45点カットオフ未満・見守り要）\n`;
+      } else {
+        txt += `・判定: 転倒ハイリスク（40点以下、転倒危険極めて高・歩行器/車椅子/介助要）\n`;
+      }
+
+      // 減点項目（4点満点未満）の抽出
+      const deductions = [];
+      const unmeasured = [];
+
+      BBS_ITEMS.forEach(item => {
+        const s = b.scores[item.id];
+        if (s === null) {
+          unmeasured.push(item.title);
+        } else if (s < 4) {
+          const chosenOpt = item.options.find(o => o.score === s);
+          const detail = chosenOpt ? chosenOpt.text : `${s}点`;
+          deductions.push(`  - ${item.title}: ${detail}`);
+        }
+      });
+
+      if (deductions.length > 0) {
+        txt += `・減点項目（課題動作）:\n`;
+        deductions.forEach(d => {
+          txt += `${d}\n`;
+        });
+      } else if (b.completedCount === 14) {
+        txt += `・減点項目: なし（全項目4点満点）\n`;
+      } else if (b.completedCount > 0) {
+        txt += `・減点項目: なし（入力済項目はすべて満点）\n`;
+      }
+
+      if (unmeasured.length > 0 && b.completedCount > 0 && b.completedCount < 14) {
+        txt += `・未実施項目: ${unmeasured.join(', ')}\n`;
+      }
+
+      return txt;
+    }
+
+    // BBS リセット
+    function resetBbsData() {
+      for (let i = 1; i <= 14; i++) {
+        appState.bbs.scores[i] = null;
+      }
+      appState.bbs.totalScore = 0;
+      appState.bbs.completedCount = 0;
+      renderBbsItems();
+      updateBbsUI();
+    }
+
+    // ========================================================
+    // 運動負荷設定（Exercise Intensity）モジュール
+    // ========================================================
+    function setupExerciseEvents() {
+      const ageInput = document.getElementById('ex-input-age');
+      const restHrInput = document.getElementById('ex-input-rest-hr');
+      const btnBetaNo = document.getElementById('btn-beta-no');
+      const btnBetaYes = document.getElementById('btn-beta-yes');
+      const btnModalWalk = document.getElementById('btn-modal-walk');
+      const btnModalBike = document.getElementById('btn-modal-bike');
+      const formulaSelect = document.getElementById('ex-formula-select');
+      const pulseInput = document.getElementById('input-10s-pulse');
+      const copyBtn = document.getElementById('ex-quick-copy-btn');
+
+      if (ageInput) {
+        ageInput.addEventListener('input', (e) => {
+          const val = parseInt(e.target.value, 10);
+          if (!isNaN(val) && val >= 10 && val <= 120) {
+            appState.exercise.age = val;
+            updateExerciseUI();
+          }
+        });
+      }
+
+      if (restHrInput) {
+        restHrInput.addEventListener('input', (e) => {
+          const val = parseInt(e.target.value, 10);
+          if (!isNaN(val) && val >= 30 && val <= 200) {
+            appState.exercise.restHr = val;
+            updateExerciseUI();
+          }
+        });
+      }
+
+      if (btnBetaNo && btnBetaYes) {
+        btnBetaNo.addEventListener('click', () => setBetaBlocker(false));
+        btnBetaYes.addEventListener('click', () => setBetaBlocker(true));
+      }
+
+      if (btnModalWalk && btnModalBike) {
+        btnModalWalk.addEventListener('click', () => setModality('walk'));
+        btnModalBike.addEventListener('click', () => setModality('bike'));
+      }
+
+      if (formulaSelect) {
+        formulaSelect.addEventListener('change', (e) => {
+          appState.exercise.formula = e.target.value;
+          updateExerciseUI();
+        });
+      }
+
+      if (pulseInput) {
+        pulseInput.addEventListener('input', (e) => {
+          const val = parseInt(e.target.value, 10);
+          appState.exercise.last10sPulse = isNaN(val) ? null : val;
+          updatePulseCheck();
+        });
+      }
+
+      if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+          openChartModal('【運動処方・心拍設定】カルテ転記', generateExerciseChartText());
+        });
+      }
+    }
+
+    function setBetaBlocker(hasBeta) {
+      appState.exercise.hasBetaBlocker = hasBeta;
+      const btnNo = document.getElementById('btn-beta-no');
+      const btnYes = document.getElementById('btn-beta-yes');
+      const modalGroup = document.getElementById('modality-select-group');
+      const formulaSelect = document.getElementById('ex-formula-select');
+      const helpText = document.getElementById('beta-help-text');
+
+      if (btnNo && btnYes) {
+        btnNo.classList.toggle('active', !hasBeta);
+        btnYes.classList.toggle('active', hasBeta);
+      }
+
+      if (hasBeta) {
+        if (modalGroup) modalGroup.style.display = 'block';
+        if (helpText) helpText.innerHTML = '⚠️ β遮断薬内服中：心拍数の上昇が抑制されるため、<strong>Brawner式</strong>または<strong>Keteyian式</strong>で計算します。';
+        if (formulaSelect) {
+          formulaSelect.options[0].disabled = true;
+          formulaSelect.options[1].disabled = true;
+          formulaSelect.options[2].disabled = false;
+          formulaSelect.options[3].disabled = false;
+          formulaSelect.value = 'brawner';
+          appState.exercise.formula = 'brawner';
+        }
+      } else {
+        if (modalGroup) modalGroup.style.display = 'none';
+        if (helpText) helpText.textContent = '※β遮断薬内服時は脈拍の上限が抑えられるため、専用の補正式を適用します。';
+        if (formulaSelect) {
+          formulaSelect.options[0].disabled = false;
+          formulaSelect.options[1].disabled = false;
+          formulaSelect.options[2].disabled = true;
+          formulaSelect.options[3].disabled = true;
+          formulaSelect.value = 'tanaka';
+          appState.exercise.formula = 'tanaka';
+        }
+      }
+
+      updateExerciseUI();
+    }
+
+    function setModality(modal) {
+      appState.exercise.modality = modal;
+      const btnWalk = document.getElementById('btn-modal-walk');
+      const btnBike = document.getElementById('btn-modal-bike');
+      if (btnWalk && btnBike) {
+        btnWalk.classList.toggle('active', modal === 'walk');
+        btnBike.classList.toggle('active', modal === 'bike');
+      }
+      updateExerciseUI();
+    }
+
+    function updateExerciseUI() {
+      const ex = appState.exercise;
+      const age = ex.age || 70;
+      const restHr = ex.restHr || 72;
+
+      let hrMax = 0;
+      let formulaDesc = '';
+
+      if (ex.hasBetaBlocker) {
+        if (ex.formula === 'keteyian') {
+          const bikeOffset = ex.modality === 'bike' ? 5 : 0;
+          hrMax = Math.round(119 + 0.5 * restHr - 0.5 * age - bikeOffset);
+          const modalStr = ex.modality === 'bike' ? '自転車(-5)' : '歩行(-0)';
+          formulaDesc = `Keteyian式 [119 + 0.5×${restHr} - 0.5×${age} - ${modalStr}]`;
+        } else {
+          hrMax = Math.round(164 - 0.7 * age);
+          formulaDesc = `Brawner式 [164 - (0.7 × ${age})]`;
+        }
+      } else {
+        if (ex.formula === 'standard') {
+          hrMax = Math.round(220 - age);
+          formulaDesc = `一般式 [220 - ${age}]`;
+        } else {
+          hrMax = Math.round(208 - 0.7 * age);
+          formulaDesc = `Tanaka式 [208 - (0.7 × ${age})]`;
+        }
+      }
+
+      ex.hrMax = hrMax;
+      const hrr = Math.max(10, hrMax - restHr);
+      ex.hrr = hrr;
+
+      // HRR法 (Karvonen)
+      const hrrModMin = Math.round(restHr + hrr * 0.40);
+      const hrrModMax = Math.round(restHr + hrr * 0.60);
+      const hrrHighMin = hrrModMax + 1;
+      const hrrHighMax = Math.round(restHr + hrr * 0.80);
+      ex.hrrModerate = { min: hrrModMin, max: hrrModMax };
+      ex.hrrHigh = { min: hrrHighMin, max: hrrHighMax };
+
+      // %HRmax法
+      const hrMaxModMin = Math.round(hrMax * 0.65);
+      const hrMaxModMax = Math.round(hrMax * 0.75);
+      const hrMaxHighMin = hrMaxModMax + 1;
+      const hrMaxHighMax = Math.round(hrMax * 0.85);
+      ex.hrMaxModerate = { min: hrMaxModMin, max: hrMaxModMax };
+      ex.hrMaxHigh = { min: hrMaxHighMin, max: hrMaxHighMax };
+
+      // DOM反映
+      const dispHrMax = document.getElementById('disp-hrmax-val');
+      const dispFormula = document.getElementById('disp-hrmax-formula');
+      const dispHrr = document.getElementById('disp-hrr-val');
+      if (dispHrMax) dispHrMax.textContent = hrMax;
+      if (dispFormula) dispFormula.textContent = `計算式: ${formulaDesc}`;
+      if (dispHrr) dispHrr.textContent = hrr;
+
+      // 比較テーブル値反映
+      const dispHrrMod = document.getElementById('disp-hrr-mod');
+      const dispHrMaxMod = document.getElementById('disp-hrmax-mod');
+      const dispHrrHigh = document.getElementById('disp-hrr-high');
+      const dispHrMaxHigh = document.getElementById('disp-hrmax-high');
+      const dispHrrDanger = document.getElementById('disp-hrr-danger');
+      const dispHrMaxDanger = document.getElementById('disp-hrmax-danger');
+
+      if (dispHrrMod) dispHrrMod.textContent = `${hrrModMin} 〜 ${hrrModMax}`;
+      if (dispHrMaxMod) dispHrMaxMod.textContent = `${hrMaxModMin} 〜 ${hrMaxModMax}`;
+      if (dispHrrHigh) dispHrrHigh.textContent = `${hrrHighMin} 〜 ${hrrHighMax}`;
+      if (dispHrMaxHigh) dispHrMaxHigh.textContent = `> ${hrMaxModMax} (〜${hrMaxHighMax})`;
+      if (dispHrrDanger) dispHrrDanger.textContent = `> ${hrrHighMax}`;
+      if (dispHrMaxDanger) dispHrMaxDanger.textContent = `> ${hrMaxHighMax}`;
+
+      const zoneMapRest = document.getElementById('zone-map-rest');
+      if (zoneMapRest) zoneMapRest.textContent = `安静時: ${restHr} bpm`;
+
+      updatePulseCheck();
+    }
+
+    function updatePulseCheck() {
+      const p = appState.exercise.last10sPulse;
+      const dispBpm = document.getElementById('disp-calc-bpm');
+      const dispZone = document.getElementById('disp-calc-zone');
+      const box = document.getElementById('pulse-result-box');
+
+      if (!box || !dispBpm || !dispZone) return;
+
+      box.classList.remove('in-mod', 'in-high', 'in-danger');
+
+      if (!p || p <= 0) {
+        dispBpm.textContent = '--';
+        dispZone.textContent = '脈拍数を入力してください';
+        dispZone.style.color = 'var(--text-secondary)';
+        return;
+      }
+
+      const bpm = p * 6;
+      dispBpm.textContent = bpm;
+      const ex = appState.exercise;
+
+      if (bpm < ex.hrrModerate.min) {
+        dispZone.textContent = '⚪ 低強度・ウォーミングアップ域（安全）';
+        dispZone.style.color = '#64748b';
+      } else if (bpm <= ex.hrrModerate.max) {
+        box.classList.add('in-mod');
+        dispZone.textContent = '🟢 中等度ゾーン内（40〜60% HRR：持久力向上・良好）';
+        dispZone.style.color = '#16a34a';
+      } else if (bpm <= ex.hrrHigh.max) {
+        box.classList.add('in-high');
+        dispZone.textContent = '🟠 高強度ゾーン内（60〜80% HRR：歩行速度向上）';
+        dispZone.style.color = '#d97706';
+      } else {
+        box.classList.add('in-danger');
+        dispZone.textContent = '🔴 危険域（>80% HRR：過負荷！減速または休憩）';
+        dispZone.style.color = '#dc2626';
+      }
+    }
+
+    function generateExerciseChartText() {
+      const ex = appState.exercise;
+      let txt = `【運動処方・心拍設定（AHA/ASA 2026ガイドライン準拠）】\n`;
+      const betaStr = ex.hasBetaBlocker ? 'あり (β遮断薬補正式適用)' : 'なし';
+      txt += `・設定条件: ${ex.age}歳, 安静時心拍数 ${ex.restHr}bpm, β遮断薬: ${betaStr}\n`;
+      txt += `・推定最大心拍数(HRmax): ${ex.hrMax} bpm, 予備心拍数(HRR): ${ex.hrr} bpm\n`;
+      txt += `・目標心拍数 (並列比較):\n`;
+      txt += `  1) 予備心拍数法 (40〜60% HRR / 推奨): ${ex.hrrModerate.min}〜${ex.hrrModerate.max} bpm [Borg 11〜13: 楽〜ややきつい]\n`;
+      txt += `     高強度域 (>60〜80% HRR): ${ex.hrrHigh.min}〜${ex.hrrHigh.max} bpm [Borg 14〜16: きつい]\n`;
+      txt += `  2) 最大心拍数比 (65〜75% HRmax / 参照): ${ex.hrMaxModerate.min}〜${ex.hrMaxModerate.max} bpm\n`;
+      txt += `     高強度域 (>75% HRmax): >${ex.hrMaxModerate.max} bpm\n`;
+      txt += `・安全上限心拍数: ${ex.hrrHigh.max} bpm (80% HRR超過時は中止・負荷軽減)\n`;
+      txt += `・推奨運動処方: 課題特異的歩行練習、週3〜5日、1回20〜60分 (週150〜300分)\n`;
+      return txt;
+    }
+
+    function resetExerciseData() {
+      appState.exercise = {
+        age: 70,
+        restHr: 72,
+        hasBetaBlocker: false,
+        modality: 'walk',
+        formula: 'tanaka',
+        hrMax: 159,
+        hrr: 87,
+        hrrModerate: { min: 107, max: 124 },
+        hrrHigh: { min: 125, max: 142 },
+        hrMaxModerate: { min: 103, max: 119 },
+        hrMaxHigh: { min: 120, max: 142 },
+        last10sPulse: null
+      };
+      const ageInput = document.getElementById('ex-input-age');
+      const restHrInput = document.getElementById('ex-input-rest-hr');
+      const pulseInput = document.getElementById('input-10s-pulse');
+      if (ageInput) ageInput.value = '70';
+      if (restHrInput) restHrInput.value = '72';
+      if (pulseInput) pulseInput.value = '';
+      setBetaBlocker(false);
+      updateExerciseUI();
     }
 
     // --------------------------------------------------------
