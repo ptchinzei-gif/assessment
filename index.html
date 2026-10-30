@@ -24,6 +24,7 @@
             <option value="sppb">🪑 SPPB（高齢者総合機能）</option>
             <option value="bbs">⚖️ BBS（バーグバランススケール）</option>
             <option value="exercise">💓 運動負荷・心拍設定 (AHAガイドライン)</option>
+            <option value="wnw">👟 Walk 'n Watch (UBCプロトコル)</option>
             <option value="grip" disabled>✊ 握力測定 (準備中)</option>
           </select>
         </div>
@@ -1176,6 +1177,633 @@
     </div>
 
 
+    <!-- ========================================== -->
+<!-- 5. Walk 'n Watch (UBCプロトコル) ビュー -->
+<!-- ========================================== -->
+<div id="view-wnw" class="assessment-view">
+  <nav class="nav-tabs" role="tablist">
+    <button class="tab-btn active" data-tab="wnw-screen" role="tab" aria-selected="true">
+      <span class="tab-icon">🩺</span> 適格性・安全基準
+    </button>
+    <button class="tab-btn" data-tab="wnw-6mwt" role="tab" aria-selected="false">
+      <span class="tab-icon">⏱️</span> 6分間歩行テスト
+    </button>
+    <button class="tab-btn" data-tab="wnw-session" role="tab" aria-selected="false">
+      <span class="tab-icon">👟</span> 30分セッション記録
+    </button>
+    <button class="tab-btn" data-tab="wnw-progress" role="tab" aria-selected="false">
+      <span class="tab-icon">📈</span> 進行・カルテ
+    </button>
+  </nav>
+
+  <main class="app-main">
+    <!-- タブ1: 適格性・安全スクリーニング -->
+    <section id="tab-wnw-screen" class="tab-pane active" role="tabpanel">
+      <!-- 概要バナー -->
+      <div class="wnw-hero-card">
+        <div class="wnw-hero-badge">UBC 2025 プロトコル</div>
+        <h2 class="wnw-hero-title">Walk ‘n Watch 安全・適応スクリーニング</h2>
+        <p class="wnw-hero-desc">
+          通常の理学療法時間内（最初の30分間）で高反復な歩行練習を行うための適格基準と安全性チェックリストです。
+        </p>
+      </div>
+
+      <!-- Step 1: 患者適格性チェック -->
+      <div class="ex-input-card">
+        <div class="ex-card-title-row">
+          <span class="ex-sec-badge">Step 1</span>
+          <h2 class="ex-card-title">適格性チェック（Eligibility）</h2>
+        </div>
+        <p class="ex-card-desc">以下のすべての項目に該当することを確認してください（タップでチェック）：</p>
+        
+        <div class="wnw-checklist" id="wnw-eligibility-list">
+          <label class="wnw-check-item">
+            <input type="checkbox" id="wnw-el-1" class="wnw-checkbox" checked>
+            <div class="wnw-check-content">
+              <strong>脳卒中（Stroke）の確定診断</strong>
+              <span>虚血性または出血性脳卒中の診断を受けている。</span>
+            </div>
+          </label>
+          <label class="wnw-check-item">
+            <input type="checkbox" id="wnw-el-2" class="wnw-checkbox" checked>
+            <div class="wnw-check-content">
+              <strong>歩行機能の向上が現在のリハビリ目標である</strong>
+              <span>移動能力や歩行速度・持久力の改善を目指している。</span>
+            </div>
+          </label>
+          <label class="wnw-check-item">
+            <input type="checkbox" id="wnw-el-3" class="wnw-checkbox" checked>
+            <div class="wnw-check-content">
+              <strong>連続5歩以上の歩行が可能</strong>
+              <span>装具や歩行器・杖の使用可。最大「1人介助」まで（初期2人介助でも1人介助に向上し2週以上の入院期間があれば適応）。</span>
+            </div>
+          </label>
+          <label class="wnw-check-item">
+            <input type="checkbox" id="wnw-el-4" class="wnw-checkbox" checked>
+            <div class="wnw-check-content">
+              <strong>簡単な指示を理解・従うことができる</strong>
+              <span>声かけやテストのルールを理解できる認知機能。</span>
+            </div>
+          </label>
+          <label class="wnw-check-item">
+            <input type="checkbox" id="wnw-el-5" class="wnw-checkbox" checked>
+            <div class="wnw-check-content">
+              <strong>2週間以上の継続的なリハビリが予定されている</strong>
+              <span>入院または外来で週5日×2週間以上のプロトコル継続が可能。</span>
+            </div>
+          </label>
+          <label class="wnw-check-item">
+            <input type="checkbox" id="wnw-el-6" class="wnw-checkbox" checked>
+            <div class="wnw-check-content">
+              <strong>全身状態が医学的に安定している</strong>
+              <span>バイタルサイン安定、直近の心イベントや急性心不全・塞栓症等がない。</span>
+            </div>
+          </label>
+        </div>
+
+        <div class="wnw-status-box" id="wnw-eligibility-status">
+          <span class="wnw-status-icon">✅</span>
+          <span class="wnw-status-text">適格基準をすべて満たしています。Step 2へ進んでください。</span>
+        </div>
+      </div>
+
+      <!-- Step 2a: カルテ確認・Red Flagsチェック -->
+      <div class="ex-input-card">
+        <div class="ex-card-title-row">
+          <span class="ex-sec-badge danger">Step 2a</span>
+          <h2 class="ex-card-title">カルテ確認・除外基準（Chart Screen Red Flags）</h2>
+        </div>
+        <p class="ex-card-desc">以下の**危険徴候（Red Flags）が1つもないこと**を確認してください（該当がある場合はチェック）：</p>
+
+        <div class="wnw-flags-grid" id="wnw-flags-list">
+          <label class="wnw-flag-item">
+            <input type="checkbox" class="wnw-flag-box" id="wnw-flag-hr">
+            <span>安静時心拍 ≥ 100 bpm</span>
+          </label>
+          <label class="wnw-flag-item">
+            <input type="checkbox" class="wnw-flag-box" id="wnw-flag-sbp">
+            <span>安静時収縮期血圧 ≥ 180 mmHg</span>
+          </label>
+          <label class="wnw-flag-item">
+            <input type="checkbox" class="wnw-flag-box" id="wnw-flag-dbp">
+            <span>安静時拡張期血圧 ≥ 100 mmHg</span>
+          </label>
+          <label class="wnw-flag-item">
+            <input type="checkbox" class="wnw-flag-box" id="wnw-flag-spo2">
+            <span>SpO2 < 95%（室内気）</span>
+          </label>
+          <label class="wnw-flag-item">
+            <input type="checkbox" class="wnw-flag-box" id="wnw-flag-angina">
+            <span>不安定狭心症</span>
+          </label>
+          <label class="wnw-flag-item">
+            <input type="checkbox" class="wnw-flag-box" id="wnw-flag-arrhythmia">
+            <span>コントロール不良の不整脈 / 症候性心不全</span>
+          </label>
+          <label class="wnw-flag-item">
+            <input type="checkbox" class="wnw-flag-box" id="wnw-flag-valve">
+            <span>肥大型心筋症 / 重度大動脈弁狭窄症</span>
+          </label>
+          <label class="wnw-flag-item">
+            <input type="checkbox" class="wnw-flag-box" id="wnw-flag-recent">
+            <span>2ヶ月以内の心筋梗塞・肺塞栓・DVT・大動脈解離・心血管手術</span>
+          </label>
+        </div>
+
+        <div class="wnw-status-box safe" id="wnw-flags-status">
+          <span class="wnw-status-icon">🛡️</span>
+          <span class="wnw-status-text">危険徴候（Red Flags）はありません。</span>
+        </div>
+      </div>
+
+      <!-- Step 2b: 安静時血圧・心拍数チェック -->
+      <div class="ex-input-card">
+        <div class="ex-card-title-row">
+          <span class="ex-sec-badge">Step 2b</span>
+          <h2 class="ex-card-title">安静時血圧・心拍数スクリーニング</h2>
+        </div>
+        <p class="ex-card-desc">
+          3〜5分椅子座位で安静後、非麻痺側上腕（心臓の高さ）で測定します。3回中1回または病棟測定値が基準内（血圧&lt;180/100, 心拍&lt;100）であればGO判定です。
+        </p>
+
+        <div class="wnw-bp-table-wrap">
+          <table class="wnw-bp-table">
+            <thead>
+              <tr>
+                <th>測定回</th>
+                <th>収縮期血圧 (mmHg)</th>
+                <th>拡張期血圧 (mmHg)</th>
+                <th>脈拍 (bpm)</th>
+                <th>判定</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1回目</td>
+                <td><input type="number" id="wnw-bp1-sys" class="wnw-table-input" value="132" min="60" max="250"></td>
+                <td><input type="number" id="wnw-bp1-dia" class="wnw-table-input" value="82" min="40" max="150"></td>
+                <td><input type="number" id="wnw-bp1-hr" class="wnw-table-input" value="72" min="30" max="200"></td>
+                <td id="wnw-bp1-res" class="text-success">OK</td>
+              </tr>
+              <tr>
+                <td>2回目 (90秒後)</td>
+                <td><input type="number" id="wnw-bp2-sys" class="wnw-table-input" placeholder="任意" min="60" max="250"></td>
+                <td><input type="number" id="wnw-bp2-dia" class="wnw-table-input" placeholder="任意" min="40" max="150"></td>
+                <td><input type="number" id="wnw-bp2-hr" class="wnw-table-input" placeholder="任意" min="30" max="200"></td>
+                <td id="wnw-bp2-res">-</td>
+              </tr>
+              <tr>
+                <td>3回目 (90秒後)</td>
+                <td><input type="number" id="wnw-bp3-sys" class="wnw-table-input" placeholder="任意" min="60" max="250"></td>
+                <td><input type="number" id="wnw-bp3-dia" class="wnw-table-input" placeholder="任意" min="40" max="150"></td>
+                <td><input type="number" id="wnw-bp3-hr" class="wnw-table-input" placeholder="任意" min="30" max="200"></td>
+                <td id="wnw-bp3-res">-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 最終判定バナー -->
+        <div class="wnw-decision-banner pass" id="wnw-overall-decision">
+          <div class="wnw-decision-main">
+            <span class="decision-icon">🟢</span>
+            <div>
+              <strong>GO: 6分間歩行テスト（6MWT）へ進んでください</strong>
+              <p>すべての適格条件を満たし、安全性基準をクリアしています。</p>
+            </div>
+          </div>
+          <button type="button" class="wnw-jump-btn" id="wnw-goto-6mwt-btn">
+            6分間歩行テストへ ➔
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- タブ2: 6分間歩行テスト＆目標設定 -->
+    <section id="tab-wnw-6mwt" class="tab-pane" role="tabpanel">
+      <!-- 概要カード -->
+      <div class="wnw-hero-card">
+        <div class="wnw-hero-badge">Step 2c</div>
+        <h2 class="wnw-hero-title">6分間歩行テスト（6MWT）支援＆目標歩数設定</h2>
+        <p class="wnw-hero-desc">
+          ベースラインの歩行持久力を評価し、Walk 'n Watchプロトコルの週別目標歩数を自動決定します。
+        </p>
+      </div>
+
+      <!-- 6分間タイマー＆アナウンスカード -->
+      <div class="ex-input-card">
+        <div class="ex-card-title-row">
+          <span class="ex-sec-badge">Timer</span>
+          <h2 class="ex-card-title">6MWT 計測タイマー＆アナウンス</h2>
+        </div>
+
+        <div class="wnw-timer-container">
+          <div class="wnw-timer-display" id="wnw-6mwt-timer">06:00</div>
+          <div class="wnw-timer-actions">
+            <button type="button" class="primary-btn timer-btn" id="wnw-6mwt-start-btn">▶️ スタート</button>
+            <button type="button" class="btn-cancel timer-btn" id="wnw-6mwt-pause-btn" disabled>⏸️ 一時停止</button>
+            <button type="button" class="btn-cancel timer-btn" id="wnw-6mwt-reset-btn">🔄 リセット</button>
+          </div>
+        </div>
+
+        <!-- 毎分の定型励まし言葉ボックス -->
+        <div class="wnw-cue-box" id="wnw-cue-box">
+          <div class="wnw-cue-header">
+            <span>📢 公式ガイダンス（経過時間ごとの定型声かけ）</span>
+            <span id="wnw-cue-time">開始前</span>
+          </div>
+          <div class="wnw-cue-text" id="wnw-cue-text">
+            「このテストの目的は、6分間でできるだけ遠くまで歩くことです。走ったりジョギングはできません。疲れたら速度を落としたり、立ち止まって休んでも構いません。」
+          </div>
+          <div class="wnw-cue-sub">
+            💡 <strong>患者が休憩を希望した場合:</strong> タイマーは<strong>止めずに</strong>「座るか壁に寄りかかって休んでください。歩けそうになったら再開してください」と伝えます。
+          </div>
+        </div>
+
+        <!-- 中止基準アラート -->
+        <div class="wnw-stop-criteria-card">
+          <div class="stop-title">⚠️ テスト即時中止基準（いずれかあれば直ちに中止・FAIL）</div>
+          <p class="stop-desc">胸痛、強いめまい、ふらつき、顔面蒼白・チアノーゼ、著明な息切れ、冷や汗、下肢の激しい痛み・痙攣、強い動悸</p>
+          <button type="button" class="wnw-fail-btn" id="wnw-6mwt-fail-btn">🚨 症状出現のためテスト中止 (FAIL)</button>
+        </div>
+      </div>
+
+      <!-- 6MWT 結果入力カード -->
+      <div class="ex-input-card">
+        <div class="ex-card-title-row">
+          <span class="ex-sec-badge">Result</span>
+          <h2 class="ex-card-title">6MWT 結果の記録と目標歩数算出</h2>
+        </div>
+
+        <div class="ex-grid-form">
+          <div class="ex-form-group">
+            <label for="wnw-6mwt-dist" class="ex-label">
+              6分間総歩行距離 <span class="ex-required">必須</span>
+            </label>
+            <div class="ex-input-wrap">
+              <input type="number" id="wnw-6mwt-dist" class="ex-num-input" value="150" min="0" max="800" step="1">
+              <span class="ex-unit">メートル (m)</span>
+            </div>
+            <p class="ex-form-help">※四捨五入して最も近いメートル単位で入力</p>
+          </div>
+
+          <div class="ex-form-group">
+            <label class="ex-label">テスト完走判定</label>
+            <div class="ex-pill-group">
+              <button type="button" class="ex-pill-btn active" id="btn-6mwt-pass" data-pass="true">
+                ✅ 完走 (PASS) - プロトコル開始
+              </button>
+              <button type="button" class="ex-pill-btn" id="btn-6mwt-fail" data-pass="false">
+                ❌ 中止 (FAIL) - 再評価
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 週別目標歩数の自動設定テーブル（マニュアル p.22） -->
+        <div class="wnw-target-card" id="wnw-target-section">
+          <h3 class="wnw-subhead">🎯 あなたの患者様の目標歩数（1セッション30分あたり）</h3>
+          <p class="wnw-target-intro">
+            初回6MWT距離（<strong id="disp-6mwt-dist-echo">150m</strong>）に基づき、以下の歩数をセッション目標に設定します：
+          </p>
+
+          <div class="wnw-target-grid">
+            <div class="wnw-target-box" id="target-box-w1">
+              <span class="target-week-tag">第1週 (Week 1)</span>
+              <div class="target-val"><strong id="disp-w1-steps">2,000</strong> <small>歩</small></div>
+              <span class="target-note">強度: 40% HRR 目安</span>
+            </div>
+            <div class="wnw-target-box" id="target-box-w2">
+              <span class="target-week-tag">第2週 (Week 2)</span>
+              <div class="target-val"><strong id="disp-w2-steps">2,500</strong> <small>歩</small></div>
+              <span class="target-note">強度: 45% HRR 目安</span>
+            </div>
+            <div class="wnw-target-box highlight" id="target-box-w4">
+              <span class="target-week-tag">第4週 (Week 4 最終目標)</span>
+              <div class="target-val"><strong id="disp-w4-steps">3,000</strong> <small>歩</small></div>
+              <span class="target-note">強度: 60% HRR 連続歩行</span>
+            </div>
+          </div>
+
+          <!-- マニュアル参照表 -->
+          <div class="wnw-ref-table-wrap">
+            <table class="wnw-ref-table">
+              <thead>
+                <tr>
+                  <th>初回6MWT距離</th>
+                  <th>第1週 目標</th>
+                  <th>第2週 目標</th>
+                  <th>第4週 目標</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr id="row-bracket-1">
+                  <td>100m 未満</td>
+                  <td>1,000 歩</td>
+                  <td>1,500 歩</td>
+                  <td>2,000 歩</td>
+                </tr>
+                <tr id="row-bracket-2" class="highlight-row">
+                  <td>100m 〜 200m</td>
+                  <td>2,000 歩</td>
+                  <td>2,500 歩</td>
+                  <td>3,000 歩</td>
+                </tr>
+                <tr id="row-bracket-3">
+                  <td>200m 超</td>
+                  <td>3,000 歩</td>
+                  <td>3,500 歩</td>
+                  <td>4,000 歩</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="wnw-tip-alert">
+            💡 <strong>重要な臨床指針（マニュアル p.22, 23より）:</strong>
+            目標歩数は「到達すべき必須最低限」ではなく「意欲を引き出すための推奨目標」です。目標に届かなくても目標値を下げてはいけません。達成できた割合（例：40%から50%へ向上したこと）を称賛し、不足分は「病棟での宿題歩数」として促します。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- タブ3: 30分セッション・歩数＆心拍トラッカー -->
+    <section id="tab-wnw-session" class="tab-pane" role="tabpanel">
+      <!-- セッション設定カード -->
+      <div class="ex-input-card">
+        <div class="ex-card-title-row">
+          <span class="ex-sec-badge">Session Settings</span>
+          <h2 class="ex-card-title">本日のセッション条件設定</h2>
+        </div>
+
+        <div class="ex-grid-form">
+          <div class="ex-form-group">
+            <label for="wnw-session-week" class="ex-label">介入ステージ（現在の週）</label>
+            <select id="wnw-session-week" class="ex-dropdown">
+              <option value="1">第1週 (Week 1) - 目標: 40% HRR</option>
+              <option value="2">第2週 (Week 2) - 目標: 45% HRR</option>
+              <option value="3">第3週 (Week 3) - 目標: 50% HRR</option>
+              <option value="4" selected>第4週 (Week 4) - 目標: 60% HRR</option>
+            </select>
+          </div>
+
+          <div class="ex-form-group">
+            <label for="wnw-patient-age" class="ex-label">患者年齢 / 安静時心拍数</label>
+            <div class="wnw-dual-input">
+              <div class="ex-input-wrap">
+                <input type="number" id="wnw-patient-age" class="ex-num-input" value="70" min="20" max="100">
+                <span class="ex-unit">歳</span>
+              </div>
+              <div class="ex-input-wrap">
+                <input type="number" id="wnw-patient-hrrest" class="ex-num-input" value="72" min="30" max="120">
+                <span class="ex-unit">bpm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 本日の目標サマリー -->
+        <div class="wnw-session-target-strip">
+          <div class="target-strip-item">
+            <span class="strip-label">本日の目標歩数</span>
+            <strong class="strip-val" id="disp-today-step-target">3,000 歩</strong>
+          </div>
+          <div class="target-strip-item">
+            <span class="strip-label">推奨強度 (%HRR)</span>
+            <strong class="strip-val text-brand" id="disp-today-hrr-target">60% HRR</strong>
+          </div>
+          <div class="target-strip-item">
+            <span class="strip-label">目標心拍数 (HR)</span>
+            <strong class="strip-val" id="disp-today-target-hr">124 bpm</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- 30分セッションタイマー -->
+      <div class="ex-input-card">
+        <div class="ex-card-title-row">
+          <span class="ex-sec-badge">30-Min</span>
+          <h2 class="ex-card-title">セッション冒頭30分 歩行タイマー</h2>
+        </div>
+        <p class="ex-card-desc">
+          理学療法開始直後の連続30分間で歩行練習を行います（インターバル例：5分歩行＋2分休憩 × 4セット）。
+        </p>
+
+        <div class="wnw-timer-container">
+          <div class="wnw-timer-display" id="wnw-sess-timer">30:00</div>
+          <div class="wnw-timer-actions">
+            <button type="button" class="primary-btn timer-btn" id="wnw-sess-start-btn">▶️ 30分スタート</button>
+            <button type="button" class="btn-cancel timer-btn" id="wnw-sess-pause-btn" disabled>⏸️ 一時停止</button>
+            <button type="button" class="btn-cancel timer-btn" id="wnw-sess-reset-btn">🔄 リセット</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 歩数＆心拍数 記録入力 -->
+      <div class="ex-input-card">
+        <div class="ex-card-title-row">
+          <span class="ex-sec-badge">Logging</span>
+          <h2 class="ex-card-title">セッション結果の入力と達成度</h2>
+        </div>
+
+        <div class="ex-grid-form">
+          <!-- 歩数計 -->
+          <div class="ex-form-group">
+            <label class="ex-label">歩数計の数値（足首の活動量計やスマートウォッチ）</label>
+            <div class="wnw-dual-input">
+              <div>
+                <span class="input-sub-label">開始時歩数</span>
+                <input type="number" id="wnw-step-start" class="ex-num-input" value="0" min="0">
+              </div>
+              <div>
+                <span class="input-sub-label">終了時歩数</span>
+                <input type="number" id="wnw-step-finish" class="ex-num-input" value="2450" min="0">
+              </div>
+            </div>
+          </div>
+
+          <!-- 心拍計 -->
+          <div class="ex-form-group">
+            <label for="wnw-sess-avghr" class="ex-label">セッション平均心拍数 (Avg HR)</label>
+            <div class="ex-input-wrap">
+              <input type="number" id="wnw-sess-avghr" class="ex-num-input" value="118" min="40" max="200">
+              <span class="ex-unit">bpm</span>
+            </div>
+            <p class="ex-form-help">胸部心拍計（Polar H10等）またはスマートウォッチの平均値</p>
+          </div>
+        </div>
+
+        <!-- 達成率メーター -->
+        <div class="wnw-progress-result-card">
+          <div class="wnw-progress-head">
+            <div>
+              <span class="progress-sub">今回の獲得歩数</span>
+              <div class="progress-main-val">
+                <strong id="disp-calc-steps">2,450</strong> <small>歩</small>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="progress-sub">目標達成率</span>
+              <div class="progress-main-val">
+                <strong id="disp-calc-step-pct">82%</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="wnw-meter-bar">
+            <div class="wnw-meter-fill" id="disp-meter-fill" style="width: 82%;"></div>
+          </div>
+
+          <div class="wnw-calc-feedback" id="disp-step-feedback">
+            👏 <strong>素晴らしい運動量です！</strong>（目標の82%を達成）<br>
+            残りの550歩は、夕方の病棟内歩行やご家族・リハ助手との自主トレ「宿題歩数」として促してみましょう。
+          </div>
+        </div>
+
+        <!-- 心拍強度判定 -->
+        <div class="wnw-hr-feedback-card" id="disp-hr-feedback">
+          <div class="feedback-badge">心拍強度判定</div>
+          <div class="feedback-text">
+            平均心拍数 118 bpm ➔ <strong>達成強度: 53% HRR</strong> (中等度強度域をしっかりキープ)
+          </div>
+        </div>
+
+        <!-- トークテスト＆自覚強度（Borg CR-10） -->
+        <div class="ex-form-group full-width" style="margin-top:16px;">
+          <label class="ex-label">自覚的運動強度（修正Borg CR-10 & トークテスト）</label>
+          <div class="wnw-borg-selector">
+            <button type="button" class="wnw-borg-btn" data-borg="2">2: 楽である（普通に会話可能）</button>
+            <button type="button" class="wnw-borg-btn active" data-borg="3">3〜4: ややきつい（努力すれば楽に会話可能 / 目標域）</button>
+            <button type="button" class="wnw-borg-btn" data-borg="5">5〜6: きつい（会話が途切れがち）</button>
+          </div>
+        </div>
+
+        <!-- カルテ出力ボタン -->
+        <div class="action-footer" style="margin-top:20px;">
+          <button id="wnw-quick-copy-btn" class="primary-btn">
+            <span class="btn-icon">📋</span> Walk 'n Watch カルテ記録テキストをコピー
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- タブ4: 進行管理・運動メニュー＆カルテ -->
+    <section id="tab-wnw-progress" class="tab-pane" role="tabpanel">
+      <!-- 進行ガイドカード -->
+      <div class="guide-card">
+        <h2>📈 4週間の段階的プログレッション（Progression Guide）</h2>
+        <p class="guide-lead">
+          患者の初期機能レベルに関わらず、少なくとも週単位で安全かつ適切に負荷を漸増させていきます。
+        </p>
+
+        <div class="wnw-ref-table-wrap">
+          <table class="wnw-ref-table">
+            <thead>
+              <tr>
+                <th>週 (Week)</th>
+                <th>目標 %HRR</th>
+                <th>総時間</th>
+                <th>運動時間 / 休憩時間</th>
+                <th>目標歩行スタイル</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>第1週</strong></td>
+                <td>40% HRR (Borg 3)</td>
+                <td>30分</td>
+                <td>運動 5分 / 休憩 2分 (約4セット)</td>
+                <td>安全確保、歩行器・免荷トレッドミル活用</td>
+              </tr>
+              <tr>
+                <td><strong>第2週</strong></td>
+                <td>45% HRR</td>
+                <td>30分</td>
+                <td>運動 5分 / 休憩 1.5分</td>
+                <td>歩行速度の上昇、歩幅の拡大</td>
+              </tr>
+              <tr>
+                <td><strong>第3週</strong></td>
+                <td>50% HRR</td>
+                <td>30分</td>
+                <td>運動 6分 / 休憩 1分</td>
+                <td>介助量の軽減、方向転換・跨ぎ動作の追加</td>
+              </tr>
+              <tr>
+                <td><strong>第4週</strong></td>
+                <td>60% HRR (Borg >4)</td>
+                <td>30分</td>
+                <td><strong>30分連続歩行</strong> (休憩最小限)</td>
+                <td>自立歩行への移行、屋外や階段への展開</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="wnw-tip-alert" style="margin-top:16px;">
+          🎯 <strong>最終ゴール（第4週末）:</strong> 40〜60% HRRの運動強度を維持しながら、30分間の連続歩行で **1セッションあたり2,000〜4,000歩** の達成を目指します。
+        </div>
+      </div>
+
+      <!-- 運動メニュー集（マニュアル p.34） -->
+      <div class="guide-card">
+        <h2>🏃 30分歩行練習の運動メニュー集（Exercise Menu）</h2>
+        <p class="guide-lead">患者の能力や目標に合わせて、以下の歩行関連運動を組み合わせて実施します：</p>
+
+        <div class="wnw-menu-grid">
+          <div class="menu-item">
+            <strong>🚶 平地歩行（廊下・トラック・平行棒）</strong>
+            <span>歩行速度のアップ、歩幅の拡大、方向転換</span>
+          </div>
+          <div class="menu-item">
+            <strong>🏃 トレッドミル歩行（免荷BWSTT含む）</strong>
+            <span>速度アップ、傾斜（インクライン）追加、免荷量の低減</span>
+          </div>
+          <div class="menu-item">
+            <strong>🪑 立ち上がり＋椅子周り歩行</strong>
+            <span>起立着座練習と連続歩行の組み合わせ、支持物の低減</span>
+          </div>
+          <div class="menu-item">
+            <strong>🪜 ステップ台昇降・障害物またぎ</strong>
+            <span>段差昇降、カラーコーンの間をジグザグ・8の字歩行</span>
+          </div>
+          <div class="menu-item">
+            <strong>↔️ 横歩き・後ろ歩き・大股歩き</strong>
+            <span>骨盤の回旋、麻痺側下肢の積極的な支持性向上</span>
+          </div>
+          <div class="menu-item">
+            <strong>🎾 二重課題（デュアルタスク）歩行</strong>
+            <span>ボールのパス・キャッチをしながらの歩行、計算歩行</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 質 vs 量のエビデンス解説（マニュアル p.27） -->
+      <div class="guide-card">
+        <h2>💡 質より量を優先するエビデンス（Movement Quality vs. Quantity）</h2>
+        <div class="guide-point-list">
+          <div class="guide-point-item">
+            <div class="point-badge">重要</div>
+            <div class="point-content">
+              <strong>代償動作を理由に反復数（歩数）を減らしてはいけない</strong>
+              <p>研究では、歩行練習を高反復で行っても有害な代償パターンは固定化せず、むしろ左右対称性や関節運動の改善（運動の質向上）につながることが示されています。反復こそが脳の可塑性を引き出す鍵です。</p>
+            </div>
+          </div>
+          <div class="guide-point-item">
+            <div class="point-badge">例外</div>
+            <div class="point-content">
+              <strong>疼痛（関節痛など）がある場合のみ動作を修正・制限する</strong>
+              <p>膝の過伸展（反張膝）や変形性関節症に伴う痛みが生じた場合は、装具（AFO等）の調整や運動様式の変更で疼痛を回避します。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+
     <!-- トースト通知 -->
     <div id="copy-toast" class="toast hidden">カルテ用テキストをクリップボードにコピーしました！</div>
 
@@ -1576,6 +2204,7 @@
       setupSppbEvents();
       setupBbsEvents();
       setupExerciseEvents();
+      setupWnwEvents();
       setupCommonModalEvents();
 
       updateWalkUI();
@@ -1583,6 +2212,10 @@
       updateSppbUI();
       updateBbsUI();
       updateExerciseUI();
+      initWnwState();
+      updateWnwScreeningUI();
+      updateWnw6mwtTargets();
+      updateWnwSessionUI();
       console.log('RehaMetrics: 準備完了');
     }
 
@@ -1627,6 +2260,11 @@
             resetExerciseData();
           }
         }
+        else if (appState.currentAssessment === 'wnw') {
+          if (confirm('Walk \'n Watch プロトコルの入力を初期値に戻しますか？')) {
+            resetWnwData();
+          }
+        }
       });
 
       document.querySelectorAll('.nav-tabs').forEach(tabNav => {
@@ -1658,6 +2296,12 @@
       document.getElementById('view-sppb').classList.toggle('active', assessmentId === 'sppb');
       document.getElementById('view-bbs').classList.toggle('active', assessmentId === 'bbs');
       document.getElementById('view-exercise').classList.toggle('active', assessmentId === 'exercise');
+      document.getElementById('view-wnw').classList.toggle('active', assessmentId === 'wnw');
+      if (assessmentId === 'wnw') {
+        updateWnwScreeningUI();
+        updateWnw6mwtTargets();
+        updateWnwSessionUI();
+      }
       if (assessmentId === 'sppb') {
         updateSppbUI();
       }
@@ -3144,6 +3788,568 @@
 
     // 読み込み直後に確実に初期化を実行
     initApp();
+  
+
+// ==========================================
+// Walk 'n Watch (UBCプロトコル) ロジック
+// ==========================================
+
+const WNW_DEFAULTS = {
+  eligibility: { el1: true, el2: true, el3: true, el4: true, el5: true, el6: true },
+  flags: { hr: false, sbp: false, dbp: false, spo2: false, angina: false, arrhythmia: false, valve: false, recent: false },
+  sixMwt: {
+    timerSeconds: 360,
+    timerRunning: false,
+    timerInterval: null,
+    dist: 150,
+    passed: true
+  },
+  session: {
+    week: 4,
+    age: 70,
+    hrRest: 72,
+    timerSeconds: 1800,
+    timerRunning: false,
+    timerInterval: null,
+    stepStart: 0,
+    stepFinish: 2450,
+    avgHr: 118,
+    borg: 3
+  }
+};
+
+function initWnwState() {
+  appState.wnw = JSON.parse(JSON.stringify(WNW_DEFAULTS));
+}
+
+function setupWnwEvents() {
+  // 適格性チェックボックス
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById(`wnw-el-${i}`);
+    if (el) {
+      el.addEventListener('change', (e) => {
+        appState.wnw.eligibility[`el${i}`] = e.target.checked;
+        updateWnwScreeningUI();
+      });
+    }
+  }
+
+  // Red Flags チェックボックス
+  const flagIds = ['hr', 'sbp', 'dbp', 'spo2', 'angina', 'arrhythmia', 'valve', 'recent'];
+  flagIds.forEach(id => {
+    const el = document.getElementById(`wnw-flag-${id}`);
+    if (el) {
+      el.addEventListener('change', (e) => {
+        appState.wnw.flags[id] = e.target.checked;
+        updateWnwScreeningUI();
+      });
+    }
+  });
+
+  // 血圧入力
+  ['bp1-sys', 'bp1-dia', 'bp1-hr', 'bp2-sys', 'bp2-dia', 'bp2-hr', 'bp3-sys', 'bp3-dia', 'bp3-hr'].forEach(id => {
+    const el = document.getElementById(`wnw-${id}`);
+    if (el) {
+      el.addEventListener('input', () => updateWnwScreeningUI());
+    }
+  });
+
+  // 6MWTへジャンプボタン
+  const goto6mwtBtn = document.getElementById('wnw-goto-6mwt-btn');
+  if (goto6mwtBtn) {
+    goto6mwtBtn.addEventListener('click', () => {
+      const tabBtn = document.querySelector('#view-wnw .tab-btn[data-tab="wnw-6mwt"]');
+      if (tabBtn) tabBtn.click();
+    });
+  }
+
+  // 6MWT タイマーボタン
+  const start6mwt = document.getElementById('wnw-6mwt-start-btn');
+  const pause6mwt = document.getElementById('wnw-6mwt-pause-btn');
+  const reset6mwt = document.getElementById('wnw-6mwt-reset-btn');
+  const fail6mwt = document.getElementById('wnw-6mwt-fail-btn');
+
+  if (start6mwt) start6mwt.addEventListener('click', startWnw6mwtTimer);
+  if (pause6mwt) pause6mwt.addEventListener('click', pauseWnw6mwtTimer);
+  if (reset6mwt) reset6mwt.addEventListener('click', resetWnw6mwtTimer);
+  if (fail6mwt) fail6mwt.addEventListener('click', () => {
+    pauseWnw6mwtTimer();
+    setWnw6mwtPass(false);
+    alert('症状出現のためテストを中止（FAIL）と記録しました。医師または看護師へ報告・相談してください。');
+  });
+
+  // 6MWT 結果距離
+  const distInput = document.getElementById('wnw-6mwt-dist');
+  if (distInput) {
+    distInput.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val) && val >= 0) {
+        appState.wnw.sixMwt.dist = val;
+        updateWnw6mwtTargets();
+      }
+    });
+  }
+
+  // PASS / FAIL ボタン
+  const btnPass = document.getElementById('btn-6mwt-pass');
+  const btnFail = document.getElementById('btn-6mwt-fail');
+  if (btnPass) btnPass.addEventListener('click', () => setWnw6mwtPass(true));
+  if (btnFail) btnFail.addEventListener('click', () => setWnw6mwtPass(false));
+
+  // セッション週選択
+  const weekSelect = document.getElementById('wnw-session-week');
+  if (weekSelect) {
+    weekSelect.addEventListener('change', (e) => {
+      appState.wnw.session.week = parseInt(e.target.value, 10);
+      updateWnwSessionUI();
+    });
+  }
+
+  // 患者年齢・安静時心拍
+  const ageInput = document.getElementById('wnw-patient-age');
+  const hrRestInput = document.getElementById('wnw-patient-hrrest');
+  if (ageInput) {
+    ageInput.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val) && val >= 10 && val <= 110) {
+        appState.wnw.session.age = val;
+        updateWnwSessionUI();
+      }
+    });
+  }
+  if (hrRestInput) {
+    hrRestInput.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val) && val >= 30 && val <= 180) {
+        appState.wnw.session.hrRest = val;
+        updateWnwSessionUI();
+      }
+    });
+  }
+
+  // 30分タイマーボタン
+  const startSess = document.getElementById('wnw-sess-start-btn');
+  const pauseSess = document.getElementById('wnw-sess-pause-btn');
+  const resetSess = document.getElementById('wnw-sess-reset-btn');
+  if (startSess) startSess.addEventListener('click', startWnwSessionTimer);
+  if (pauseSess) pauseSess.addEventListener('click', pauseWnwSessionTimer);
+  if (resetSess) resetSess.addEventListener('click', resetWnwSessionTimer);
+
+  // 歩数入力
+  const stepStartInput = document.getElementById('wnw-step-start');
+  const stepFinishInput = document.getElementById('wnw-step-finish');
+  if (stepStartInput) {
+    stepStartInput.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val) && val >= 0) {
+        appState.wnw.session.stepStart = val;
+        updateWnwSessionUI();
+      }
+    });
+  }
+  if (stepFinishInput) {
+    stepFinishInput.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val) && val >= 0) {
+        appState.wnw.session.stepFinish = val;
+        updateWnwSessionUI();
+      }
+    });
+  }
+
+  // 平均心拍数入力
+  const avgHrInput = document.getElementById('wnw-sess-avghr');
+  if (avgHrInput) {
+    avgHrInput.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val) && val >= 30) {
+        appState.wnw.session.avgHr = val;
+        updateWnwSessionUI();
+      }
+    });
+  }
+
+  // Borg ボタン
+  document.querySelectorAll('.wnw-borg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.wnw-borg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      appState.wnw.session.borg = parseInt(btn.getAttribute('data-borg'), 10);
+    });
+  });
+
+  // クイックカルテコピー
+  const copyBtn = document.getElementById('wnw-quick-copy-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      generateWnwChartText();
+      openChartModal('Walk \'n Watch プロトコル 実施カルテ');
+    });
+  }
+}
+
+function updateWnwScreeningUI() {
+  const elStatus = document.getElementById('wnw-eligibility-status');
+  const flagsStatus = document.getElementById('wnw-flags-status');
+  const overallBanner = document.getElementById('wnw-overall-decision');
+
+  // 適格性全チェック確認
+  const elAllPassed = Object.values(appState.wnw.eligibility).every(v => v === true);
+  if (elStatus) {
+    if (elAllPassed) {
+      elStatus.className = 'wnw-status-box safe';
+      elStatus.innerHTML = '<span class="wnw-status-icon">✅</span><span class="wnw-status-text">適格基準をすべて満たしています。</span>';
+    } else {
+      elStatus.className = 'wnw-status-box danger';
+      elStatus.innerHTML = '<span class="wnw-status-icon">⚠️</span><span class="wnw-status-text">未チェックの適格基準があります（5歩歩行やリハビリ目標等）。</span>';
+    }
+  }
+
+  // Red Flags確認
+  const hasFlag = Object.values(appState.wnw.flags).some(v => v === true);
+  if (flagsStatus) {
+    if (!hasFlag) {
+      flagsStatus.className = 'wnw-status-box safe';
+      flagsStatus.innerHTML = '<span class="wnw-status-icon">🛡️</span><span class="wnw-status-text">危険徴候（Red Flags）はありません。</span>';
+    } else {
+      flagsStatus.className = 'wnw-status-box danger';
+      flagsStatus.innerHTML = '<span class="wnw-status-icon">🚨</span><span class="wnw-status-text">危険徴候（Red Flags）が認められます。医師への相談が必要です。</span>';
+    }
+  }
+
+  // 血圧チェック
+  const bp1Sys = parseInt(document.getElementById('wnw-bp1-sys')?.value, 10);
+  const bp1Dia = parseInt(document.getElementById('wnw-bp1-dia')?.value, 10);
+  const bp1Hr = parseInt(document.getElementById('wnw-bp1-hr')?.value, 10);
+
+  const bp1Ok = !isNaN(bp1Sys) && !isNaN(bp1Dia) && !isNaN(bp1Hr) && bp1Sys < 180 && bp1Dia < 100 && bp1Hr < 100;
+  const bp1Res = document.getElementById('wnw-bp1-res');
+  if (bp1Res) {
+    bp1Res.textContent = bp1Ok ? 'OK' : '高値/要注意';
+    bp1Res.className = bp1Ok ? 'text-success' : 'text-danger';
+  }
+
+  // 総合判断
+  const isGo = elAllPassed && !hasFlag && bp1Ok;
+  if (overallBanner) {
+    if (isGo) {
+      overallBanner.className = 'wnw-decision-banner pass';
+      overallBanner.innerHTML = `
+        <div class="wnw-decision-main">
+          <span class="decision-icon">🟢</span>
+          <div>
+            <strong>GO: 6分間歩行テスト（6MWT）へ進んでください</strong>
+            <p>すべての適格条件を満たし、安全性基準をクリアしています。</p>
+          </div>
+        </div>
+        <button type="button" class="wnw-jump-btn" id="wnw-goto-6mwt-btn">6分間歩行テストへ ➔</button>
+      `;
+      document.getElementById('wnw-goto-6mwt-btn')?.addEventListener('click', () => {
+        document.querySelector('#view-wnw .tab-btn[data-tab="wnw-6mwt"]')?.click();
+      });
+    } else {
+      overallBanner.className = 'wnw-decision-banner stop';
+      overallBanner.innerHTML = `
+        <div class="wnw-decision-main">
+          <span class="decision-icon">🔴</span>
+          <div>
+            <strong>STOP: 担当医師または看護師へ確認・相談してください</strong>
+            <p>適格基準の不足またはRed Flags・バイタル高値が検出されています。</p>
+          </div>
+        </div>
+      `;
+    }
+  }
+}
+
+// 6MWT タイマー
+function formatTimerMinSec(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function startWnw6mwtTimer() {
+  if (appState.wnw.sixMwt.timerRunning) return;
+  appState.wnw.sixMwt.timerRunning = true;
+  document.getElementById('wnw-6mwt-start-btn').disabled = true;
+  document.getElementById('wnw-6mwt-pause-btn').disabled = false;
+  if (appState.soundEnabled) playStartBeep();
+
+  appState.wnw.sixMwt.timerInterval = setInterval(() => {
+    appState.wnw.sixMwt.timerSeconds--;
+    updateWnw6mwtTimerDisplay();
+
+    if (appState.wnw.sixMwt.timerSeconds <= 0) {
+      pauseWnw6mwtTimer();
+      if (appState.soundEnabled) playStopBeep();
+      if (appState.vibrateEnabled) triggerVibration();
+      alert('6分間が経過しました！その場で立ち止まるよう指示し、歩行距離を計測してください。');
+    }
+  }, 1000);
+}
+
+function pauseWnw6mwtTimer() {
+  appState.wnw.sixMwt.timerRunning = false;
+  clearInterval(appState.wnw.sixMwt.timerInterval);
+  document.getElementById('wnw-6mwt-start-btn').disabled = false;
+  document.getElementById('wnw-6mwt-pause-btn').disabled = true;
+}
+
+function resetWnw6mwtTimer() {
+  pauseWnw6mwtTimer();
+  appState.wnw.sixMwt.timerSeconds = 360;
+  updateWnw6mwtTimerDisplay();
+}
+
+function updateWnw6mwtTimerDisplay() {
+  const timerEl = document.getElementById('wnw-6mwt-timer');
+  const cueTime = document.getElementById('wnw-cue-time');
+  const cueText = document.getElementById('wnw-cue-text');
+  const s = appState.wnw.sixMwt.timerSeconds;
+
+  if (timerEl) timerEl.textContent = formatTimerMinSec(s);
+
+  // 定型ガイダンス（経過時間: 360 - s）
+  const elapsed = 360 - s;
+  if (cueTime && cueText) {
+    if (elapsed === 0) {
+      cueTime.textContent = '開始前';
+      cueText.textContent = '「このテストの目的は、6分間でできるだけ遠くまで歩くことです。走ったりジョギングはできません。疲れたら速度を落としたり、立ち止まって休んでも構いません。」';
+    } else if (elapsed < 60) {
+      cueTime.textContent = '1分未満';
+      cueText.textContent = '患者の横または斜め後ろに付き添い、安全を確保しながら見守ります（私語は控え、タイムコールのみ行います）。';
+    } else if (elapsed >= 60 && elapsed < 120) {
+      cueTime.textContent = '1分経過';
+      cueText.textContent = '📢 声かけ: 「順調です。残り5分です。」（You are doing well. You have 5 minutes to go.）';
+    } else if (elapsed >= 120 && elapsed < 180) {
+      cueTime.textContent = '2分経過';
+      cueText.textContent = '📢 声かけ: 「その調子です。残り4分です。」（Keep up the good work. You have 4 minutes to go.）';
+    } else if (elapsed >= 180 && elapsed < 240) {
+      cueTime.textContent = '3分経過 (中間地点)';
+      cueText.textContent = '📢 声かけ: 「順調です。ちょうど半分終わりました。」（You are doing well. You are halfway done.）';
+    } else if (elapsed >= 240 && elapsed < 300) {
+      cueTime.textContent = '4分経過';
+      cueText.textContent = '📢 声かけ: 「その調子です。あと2分です。」（Keep up the good work. You have only 2 minutes left.）';
+    } else if (elapsed >= 300 && elapsed < 345) {
+      cueTime.textContent = '5分経過';
+      cueText.textContent = '📢 声かけ: 「順調です。残りあと1分です。」（You are doing well. You have only 1 minute to go.）';
+    } else if (elapsed >= 345 && elapsed < 360) {
+      cueTime.textContent = '5分45秒経過 (ラストスパート)';
+      cueText.textContent = '📢 声かけ: 「まもなく終了の合図をします。合図があったらその場で止まってください。」';
+    } else {
+      cueTime.textContent = '6分終了';
+      cueText.textContent = '📢 声かけ: 「止まってください。椅子に座って休んでください。」';
+    }
+  }
+}
+
+function setWnw6mwtPass(passed) {
+  appState.wnw.sixMwt.passed = passed;
+  document.getElementById('btn-6mwt-pass')?.classList.toggle('active', passed);
+  document.getElementById('btn-6mwt-fail')?.classList.toggle('active', !passed);
+  updateWnw6mwtTargets();
+}
+
+function updateWnw6mwtTargets() {
+  const dist = appState.wnw.sixMwt.dist;
+  const echoEl = document.getElementById('disp-6mwt-dist-echo');
+  if (echoEl) echoEl.textContent = `${dist}m`;
+
+  const w1El = document.getElementById('disp-w1-steps');
+  const w2El = document.getElementById('disp-w2-steps');
+  const w4El = document.getElementById('disp-w4-steps');
+
+  let w1 = 2000, w2 = 2500, w4 = 3000;
+  let bracket = 2;
+
+  if (dist < 100) {
+    w1 = 1000; w2 = 1500; w4 = 2000;
+    bracket = 1;
+  } else if (dist <= 200) {
+    w1 = 2000; w2 = 2500; w4 = 3000;
+    bracket = 2;
+  } else {
+    w1 = 3000; w2 = 3500; w4 = 4000;
+    bracket = 3;
+  }
+
+  if (w1El) w1El.textContent = w1.toLocaleString();
+  if (w2El) w2El.textContent = w2.toLocaleString();
+  if (w4El) w4El.textContent = w4.toLocaleString();
+
+  // テーブルハイライト
+  document.getElementById('row-bracket-1')?.classList.toggle('highlight-row', bracket === 1);
+  document.getElementById('row-bracket-2')?.classList.toggle('highlight-row', bracket === 2);
+  document.getElementById('row-bracket-3')?.classList.toggle('highlight-row', bracket === 3);
+
+  // セッションUIも連動更新
+  updateWnwSessionUI();
+}
+
+// 30分セッションタイマー
+function startWnwSessionTimer() {
+  if (appState.wnw.session.timerRunning) return;
+  appState.wnw.session.timerRunning = true;
+  document.getElementById('wnw-sess-start-btn').disabled = true;
+  document.getElementById('wnw-sess-pause-btn').disabled = false;
+  if (appState.soundEnabled) playStartBeep();
+
+  appState.wnw.session.timerInterval = setInterval(() => {
+    appState.wnw.session.timerSeconds--;
+    updateWnwSessionTimerDisplay();
+
+    if (appState.wnw.session.timerSeconds <= 0) {
+      pauseWnwSessionTimer();
+      if (appState.soundEnabled) playStopBeep();
+      if (appState.vibrateEnabled) triggerVibration();
+      alert('30分間の歩行セッションが終了しました！歩数計の終了数値を記録してください。');
+    }
+  }, 1000);
+}
+
+function pauseWnwSessionTimer() {
+  appState.wnw.session.timerRunning = false;
+  clearInterval(appState.wnw.session.timerInterval);
+  document.getElementById('wnw-sess-start-btn').disabled = false;
+  document.getElementById('wnw-sess-pause-btn').disabled = true;
+}
+
+function resetWnwSessionTimer() {
+  pauseWnwSessionTimer();
+  appState.wnw.session.timerSeconds = 1800;
+  updateWnwSessionTimerDisplay();
+}
+
+function updateWnwSessionTimerDisplay() {
+  const el = document.getElementById('wnw-sess-timer');
+  if (el) el.textContent = formatTimerMinSec(appState.wnw.session.timerSeconds);
+}
+
+function updateWnwSessionUI() {
+  const { week, age, hrRest, stepStart, stepFinish, avgHr } = appState.wnw.session;
+  const dist = appState.wnw.sixMwt.dist;
+
+  // 目標歩数の決定
+  let stepTarget = 3000;
+  if (dist < 100) {
+    if (week === 1) stepTarget = 1000;
+    else if (week === 2) stepTarget = 1500;
+    else stepTarget = 2000;
+  } else if (dist <= 200) {
+    if (week === 1) stepTarget = 2000;
+    else if (week === 2) stepTarget = 2500;
+    else stepTarget = 3000;
+  } else {
+    if (week === 1) stepTarget = 3000;
+    else if (week === 2) stepTarget = 3500;
+    else stepTarget = 4000;
+  }
+
+  // 目標%HRRの決定 (Week1: 40%, Week2: 45%, Week3: 50%, Week4: 60%)
+  let targetHrrPct = 40;
+  if (week === 2) targetHrrPct = 45;
+  if (week === 3) targetHrrPct = 50;
+  if (week === 4) targetHrrPct = 60;
+
+  // 目標心拍数（Tanaka式 HRmax = 208 - 0.7 * age）
+  const hrMax = Math.round(208 - 0.7 * age);
+  const hrr = hrMax - hrRest;
+  const targetHr = Math.round(hrRest + hrr * (targetHrrPct / 100));
+
+  // 表示更新
+  const todayStepEl = document.getElementById('disp-today-step-target');
+  const todayHrrEl = document.getElementById('disp-today-hrr-target');
+  const todayHrEl = document.getElementById('disp-today-target-hr');
+  if (todayStepEl) todayStepEl.textContent = `${stepTarget.toLocaleString()} 歩`;
+  if (todayHrrEl) todayHrrEl.textContent = `${targetHrrPct}% HRR`;
+  if (todayHrEl) todayHrEl.textContent = `${targetHr} bpm`;
+
+  // 獲得歩数計算
+  const calcSteps = Math.max(0, stepFinish - stepStart);
+  const calcStepsEl = document.getElementById('disp-calc-steps');
+  if (calcStepsEl) calcStepsEl.textContent = calcSteps.toLocaleString();
+
+  // 達成率
+  const pct = Math.round((calcSteps / stepTarget) * 100);
+  const pctEl = document.getElementById('disp-calc-step-pct');
+  const fillEl = document.getElementById('disp-meter-fill');
+  const feedbackEl = document.getElementById('disp-step-feedback');
+
+  if (pctEl) pctEl.textContent = `${pct}%`;
+  if (fillEl) fillEl.style.width = `${Math.min(pct, 100)}%`;
+
+  if (feedbackEl) {
+    if (pct >= 100) {
+      feedbackEl.innerHTML = `🎉 <strong>本日の目標達成（${pct}%）！</strong> 素晴らしい高反復歩行です。リハビリ効果が最大限に期待できます。`;
+    } else {
+      const remaining = stepTarget - calcSteps;
+      feedbackEl.innerHTML = `👏 <strong>よく頑張りました！（目標の${pct}%を達成）</strong><br>
+        残りの約 ${remaining.toLocaleString()} 歩は、夕方の病棟内歩行やご家族・看護師との自主トレ「宿題歩数」として促してみましょう（※目標は下げずに維持します）。`;
+    }
+  }
+
+  // 心拍強度判定
+  const achievedHrrPct = hrr > 0 ? Math.round(((avgHr - hrRest) / hrr) * 100) : 0;
+  const hrFeedbackEl = document.getElementById('disp-hr-feedback');
+  if (hrFeedbackEl) {
+    let zoneNote = '適正な中等度強度域です。';
+    if (achievedHrrPct < 35) zoneNote = 'やや低強度です。次回は歩行速度のアップや介助量の軽減を検討しましょう。';
+    else if (achievedHrrPct > 70) zoneNote = '高強度域に入っています。過負荷・息切れに留意してください。';
+
+    hrFeedbackEl.innerHTML = `
+      <div class="feedback-badge">心拍強度判定</div>
+      <div class="feedback-text">
+        平均心拍数 ${avgHr} bpm ➔ <strong>達成強度: 約 ${achievedHrrPct}% HRR</strong>（${zoneNote}）
+      </div>
+    `;
+  }
+}
+
+function generateWnwChartText() {
+  const { week, age, hrRest, stepStart, stepFinish, avgHr, borg } = appState.wnw.session;
+  const sixMwt = appState.wnw.sixMwt;
+  const calcSteps = Math.max(0, stepFinish - stepStart);
+
+  let stepTarget = 3000;
+  if (sixMwt.dist < 100) stepTarget = week === 1 ? 1000 : (week === 2 ? 1500 : 2000);
+  else if (sixMwt.dist <= 200) stepTarget = week === 1 ? 2000 : (week === 2 ? 2500 : 3000);
+  else stepTarget = week === 1 ? 3000 : (week === 2 ? 3500 : 4000);
+
+  const pct = Math.round((calcSteps / stepTarget) * 100);
+  const hrMax = Math.round(208 - 0.7 * age);
+  const hrr = hrMax - hrRest;
+  const achievedHrrPct = hrr > 0 ? Math.round(((avgHr - hrRest) / hrr) * 100) : 0;
+
+  const text = `【Walk 'n Watch プロトコル 実施記録】
+■ 評価・条件
+・介入ステージ: 第${week}週
+・患者情報: 年齢 ${age}歳 / 安静時心拍数 ${hrRest} bpm
+・初回6MWT距離: ${sixMwt.dist} m (${sixMwt.passed ? '完走 PASS' : '中止 FAIL'})
+・本日のセッション目標歩数: ${stepTarget.toLocaleString()} 歩
+
+■ 実施結果 (冒頭30分間歩行練習)
+・獲得歩数: ${calcSteps.toLocaleString()} 歩 (目標達成率: ${pct}%)
+  (歩数計: 開始 ${stepStart.toLocaleString()} 歩 ➔ 終了 ${stepFinish.toLocaleString()} 歩)
+・平均心拍数: ${avgHr} bpm (約 ${achievedHrrPct}% HRR)
+・自覚的運動強度: 修正Borg ${borg}/10 (トークテスト: 会話可能)
+・有害事象・自覚症状: なし (胸痛・めまい・過度な疲労等なし)
+
+■ 今後の方針
+・セッション外の活動: 不足歩数は病棟内での自主トレ・家族歩行（宿題歩数）として推奨。
+・次週プログレッション: 歩行速度向上・休憩時間の短縮を図り、高反復・中等度強度を維持。`;
+
+  const outputEl = document.getElementById('chart-text-output');
+  if (outputEl) outputEl.value = text;
+}
+
+function resetWnwData() {
+  initWnwState();
+  updateWnwScreeningUI();
+  updateWnw6mwtTargets();
+  updateWnwSessionUI();
+}
+
   </script>
 </body>
 </html>

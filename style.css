@@ -2471,3 +2471,649 @@ body {
   margin: 0;
 }
 
+/* ========================================== */
+/* Walk 'n Watch (UBCプロトコル) スタイル */
+/* ========================================== */
+
+.wnw-hero-card {
+  background: linear-gradient(135deg, #0d9488 0%, #115e59 100%);
+  color: #ffffff;
+  padding: 20px 24px;
+  border-radius: var(--radius-lg);
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-md);
+}
+
+.wnw-hero-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ccfbf1;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.wnw-hero-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+  color: #ffffff;
+}
+
+.wnw-hero-desc {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #e6fffa;
+  margin: 0;
+}
+
+/* チェックリスト */
+.wnw-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.wnw-check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wnw-check-item:hover {
+  background-color: #f0fdfa;
+  border-color: #5eead4;
+}
+
+.wnw-checkbox {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  accent-color: #0d9488;
+  cursor: pointer;
+}
+
+.wnw-check-content strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--color-text-main);
+  margin-bottom: 2px;
+}
+
+.wnw-check-content span {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+/* Red Flags グリッド */
+.wnw-flags-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.wnw-flag-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background-color: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.88rem;
+  color: #9f1239;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.wnw-flag-item:hover {
+  background-color: #ffe4e6;
+}
+
+.wnw-flag-box {
+  width: 18px;
+  height: 18px;
+  accent-color: #e11d48;
+  cursor: pointer;
+}
+
+/* ステータスボックス */
+.wnw-status-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  margin-top: 14px;
+  border-radius: var(--radius-md);
+  background-color: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #166534;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.wnw-status-box.danger {
+  background-color: #fef2f2;
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+
+.wnw-status-box.safe {
+  background-color: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #065f46;
+}
+
+/* 血圧テーブル */
+.wnw-bp-table-wrap {
+  overflow-x: auto;
+  margin-top: 12px;
+}
+
+.wnw-bp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.wnw-bp-table th,
+.wnw-bp-table td {
+  padding: 10px 12px;
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.wnw-bp-table th {
+  background-color: var(--color-bg);
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.wnw-table-input {
+  width: 90px;
+  padding: 6px 8px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: #ffffff;
+}
+
+.text-success {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+/* 判定決定バナー */
+.wnw-decision-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  margin-top: 18px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.wnw-decision-banner.pass {
+  background-color: #f0fdf4;
+  border: 2px solid #22c55e;
+}
+
+.wnw-decision-banner.stop {
+  background-color: #fef2f2;
+  border: 2px solid #ef4444;
+}
+
+.wnw-decision-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.decision-icon {
+  font-size: 2rem;
+}
+
+.wnw-decision-main strong {
+  display: block;
+  font-size: 1.05rem;
+  color: var(--color-text-main);
+  margin-bottom: 2px;
+}
+
+.wnw-decision-main p {
+  font-size: 0.84rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.wnw-jump-btn {
+  background-color: #0d9488;
+  color: #ffffff;
+  border: none;
+  padding: 10px 16px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.wnw-jump-btn:hover {
+  background-color: #0f766e;
+}
+
+/* タイマー */
+.wnw-timer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 24px 20px;
+  border-radius: var(--radius-lg);
+  margin: 16px 0;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.wnw-timer-display {
+  font-family: 'SF Mono', Consolas, Monaco, monospace;
+  font-size: 3.5rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #38bdf8;
+  text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+.wnw-timer-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.timer-btn {
+  padding: 8px 18px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* ガイダンス音声・声かけボックス */
+.wnw-cue-box {
+  background-color: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-left: 4px solid #0284c7;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+
+.wnw-cue-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0369a1;
+  margin-bottom: 6px;
+}
+
+.wnw-cue-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.wnw-cue-sub {
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+/* 中止基準カード */
+.wnw-stop-criteria-card {
+  background-color: #fff1f2;
+  border: 1px dashed #f43f5e;
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-top: 12px;
+}
+
+.stop-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #be123c;
+  margin-bottom: 4px;
+}
+
+.stop-desc {
+  font-size: 0.8rem;
+  color: #9f1239;
+  line-height: 1.4;
+  margin: 0 0 8px 0;
+}
+
+.wnw-fail-btn {
+  background-color: #e11d48;
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.wnw-fail-btn:hover {
+  background-color: #be123c;
+}
+
+/* 目標歩数カード */
+.wnw-target-card {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.wnw-subhead {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  margin: 0 0 6px 0;
+}
+
+.wnw-target-intro {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  margin-bottom: 14px;
+}
+
+.wnw-target-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.wnw-target-box {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 14px 12px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.wnw-target-box.highlight {
+  background: linear-gradient(to bottom, #f0fdfa, #ccfbf1);
+  border: 2px solid #0d9488;
+}
+
+.target-week-tag {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.target-val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f766e;
+  line-height: 1.2;
+}
+
+.target-note {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+/* 参照テーブル */
+.wnw-ref-table-wrap {
+  overflow-x: auto;
+  margin: 12px 0;
+}
+
+.wnw-ref-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.wnw-ref-table th,
+.wnw-ref-table td {
+  padding: 8px 12px;
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.wnw-ref-table th {
+  background-color: var(--color-bg);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.wnw-ref-table tr.highlight-row {
+  background-color: #f0fdfa;
+  font-weight: 700;
+  color: #0f766e;
+}
+
+/* Tipsアラート */
+.wnw-tip-alert {
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 0.84rem;
+  color: #92400e;
+  line-height: 1.5;
+}
+
+/* セッションストリップ */
+.wnw-session-target-strip {
+  display: flex;
+  justify-content: space-around;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-top: 14px;
+}
+
+.target-strip-item {
+  text-align: center;
+}
+
+.strip-label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin-bottom: 2px;
+}
+
+.strip-val {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-text-main);
+}
+
+.text-brand {
+  color: #0d9488;
+}
+
+.wnw-dual-input {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.input-sub-label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+/* プログレスメーター */
+.wnw-progress-result-card {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-top: 16px;
+}
+
+.wnw-progress-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 8px;
+}
+
+.progress-sub {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.progress-main-val strong {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #0d9488;
+}
+
+.wnw-meter-bar {
+  width: 100%;
+  height: 12px;
+  background-color: #e2e8f0;
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.wnw-meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #14b8a6, #0d9488);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+.wnw-calc-feedback {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--color-text-main);
+  background-color: #ffffff;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+
+/* 心拍フィードバック */
+.wnw-hr-feedback-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-top: 12px;
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius-md);
+}
+
+.feedback-badge {
+  background-color: #2563eb;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.feedback-text {
+  font-size: 0.88rem;
+  color: #1e40af;
+}
+
+/* Borgセレクター */
+.wnw-borg-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.wnw-borg-btn {
+  padding: 10px 14px;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-main);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wnw-borg-btn:hover {
+  background-color: #f0fdfa;
+  border-color: #99f6e4;
+}
+
+.wnw-borg-btn.active {
+  background-color: #ccfbf1;
+  border-color: #0d9488;
+  color: #0f766e;
+  box-shadow: 0 0 0 1px #0d9488;
+}
+
+/* メニューグリッド */
+.wnw-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.menu-item {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+
+.menu-item strong {
+  display: block;
+  font-size: 0.92rem;
+  color: var(--color-text-main);
+  margin-bottom: 4px;
+}
+
+.menu-item span {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}

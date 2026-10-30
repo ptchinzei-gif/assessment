@@ -373,6 +373,7 @@
       setupSppbEvents();
       setupBbsEvents();
       setupExerciseEvents();
+      setupWnwEvents();
       setupCommonModalEvents();
 
       updateWalkUI();
@@ -380,6 +381,10 @@
       updateSppbUI();
       updateBbsUI();
       updateExerciseUI();
+      initWnwState();
+      updateWnwScreeningUI();
+      updateWnw6mwtTargets();
+      updateWnwSessionUI();
       console.log('RehaMetrics: 準備完了');
     }
 
@@ -424,6 +429,11 @@
             resetExerciseData();
           }
         }
+        else if (appState.currentAssessment === 'wnw') {
+          if (confirm('Walk \'n Watch プロトコルの入力を初期値に戻しますか？')) {
+            resetWnwData();
+          }
+        }
       });
 
       document.querySelectorAll('.nav-tabs').forEach(tabNav => {
@@ -455,6 +465,12 @@
       document.getElementById('view-sppb').classList.toggle('active', assessmentId === 'sppb');
       document.getElementById('view-bbs').classList.toggle('active', assessmentId === 'bbs');
       document.getElementById('view-exercise').classList.toggle('active', assessmentId === 'exercise');
+      document.getElementById('view-wnw').classList.toggle('active', assessmentId === 'wnw');
+      if (assessmentId === 'wnw') {
+        updateWnwScreeningUI();
+        updateWnw6mwtTargets();
+        updateWnwSessionUI();
+      }
       if (assessmentId === 'sppb') {
         updateSppbUI();
       }
@@ -1941,3 +1957,564 @@
 
     // 読み込み直後に確実に初期化を実行
     initApp();
+  
+
+// ==========================================
+// Walk 'n Watch (UBCプロトコル) ロジック
+// ==========================================
+
+const WNW_DEFAULTS = {
+  eligibility: { el1: true, el2: true, el3: true, el4: true, el5: true, el6: true },
+  flags: { hr: false, sbp: false, dbp: false, spo2: false, angina: false, arrhythmia: false, valve: false, recent: false },
+  sixMwt: {
+    timerSeconds: 360,
+    timerRunning: false,
+    timerInterval: null,
+    dist: 150,
+    passed: true
+  },
+  session: {
+    week: 4,
+    age: 70,
+    hrRest: 72,
+    timerSeconds: 1800,
+    timerRunning: false,
+    timerInterval: null,
+    stepStart: 0,
+    stepFinish: 2450,
+    avgHr: 118,
+    borg: 3
+  }
+};
+
+function initWnwState() {
+  appState.wnw = JSON.parse(JSON.stringify(WNW_DEFAULTS));
+}
+
+function setupWnwEvents() {
+  // 適格性チェックボックス
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById(`wnw-el-${i}`);
+    if (el) {
+      el.addEventListener('change', (e) => {
+        appState.wnw.eligibility[`el${i}`] = e.target.checked;
+        updateWnwScreeningUI();
+      });
+    }
+  }
+
+  // Red Flags チェックボックス
+  const flagIds = ['hr', 'sbp', 'dbp', 'spo2', 'angina', 'arrhythmia', 'valve', 'recent'];
+  flagIds.forEach(id => {
+    const el = document.getElementById(`wnw-flag-${id}`);
+    if (el) {
+      el.addEventListener('change', (e) => {
+        appState.wnw.flags[id] = e.target.checked;
+        updateWnwScreeningUI();
+      });
+    }
+  });
+
+  // 血圧入力
+  ['bp1-sys', 'bp1-dia', 'bp1-hr', 'bp2-sys', 'bp2-dia', 'bp2-hr', 'bp3-sys', 'bp3-dia', 'bp3-hr'].forEach(id => {
+    const el = document.getElementById(`wnw-${id}`);
+    if (el) {
+      el.addEventListener('input', () => updateWnwScreeningUI());
+    }
+  });
+
+  // 6MWTへジャンプボタン
+  const goto6mwtBtn = document.getElementById('wnw-goto-6mwt-btn');
+  if (goto6mwtBtn) {
+    goto6mwtBtn.addEventListener('click', () => {
+      const tabBtn = document.querySelector('#view-wnw .tab-btn[data-tab="wnw-6mwt"]');
+      if (tabBtn) tabBtn.click();
+    });
+  }
+
+  // 6MWT タイマーボタン
+  const start6mwt = document.getElementById('wnw-6mwt-start-btn');
+  const pause6mwt = document.getElementById('wnw-6mwt-pause-btn');
+  const reset6mwt = document.getElementById('wnw-6mwt-reset-btn');
+  const fail6mwt = document.getElementById('wnw-6mwt-fail-btn');
+
+  if (start6mwt) start6mwt.addEventListener('click', startWnw6mwtTimer);
+  if (pause6mwt) pause6mwt.addEventListener('click', pauseWnw6mwtTimer);
+  if (reset6mwt) reset6mwt.addEventListener('click', resetWnw6mwtTimer);
+  if (fail6mwt) fail6mwt.addEventListener('click', () => {
+    pauseWnw6mwtTimer();
+    setWnw6mwtPass(false);
+    alert('症状出現のためテストを中止（FAIL）と記録しました。医師または看護師へ報告・相談してください。');
+  });
+
+  // 6MWT 結果距離
+  const distInput = document.getElementById('wnw-6mwt-dist');
+  if (distInput) {
+    distInput.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val) && val >= 0) {
+        appState.wnw.sixMwt.dist = val;
+        updateWnw6mwtTargets();
+      }
+    });
+  }
+
+  // PASS / FAIL ボタン
+  const btnPass = document.getElementById('btn-6mwt-pass');
+  const btnFail = document.getElementById('btn-6mwt-fail');
+  if (btnPass) btnPass.addEventListener('click', () => setWnw6mwtPass(true));
+  if (btnFail) btnFail.addEventListener('click', () => setWnw6mwtPass(false));
+
+  // セッション週選択
+  const weekSelect = document.getElementById('wnw-session-week');
+  if (weekSelect) {
+    weekSelect.addEventListener('change', (e) => {
+      appState.wnw.session.week = parseInt(e.target.value, 10);
+      updateWnwSessionUI();
+    });
+  }
+
+  // 患者年齢・安静時心拍
+  const ageInput = document.getElementById('wnw-patient-age');
+  const hrRestInput = document.getElementById('wnw-patient-hrrest');
+  if (ageInput) {
+    ageInput.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val) && val >= 10 && val <= 110) {
+        appState.wnw.session.age = val;
+        updateWnwSessionUI();
+      }
+    });
+  }
+  if (hrRestInput) {
+    hrRestInput.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val) && val >= 30 && val <= 180) {
+        appState.wnw.session.hrRest = val;
+        updateWnwSessionUI();
+      }
+    });
+  }
+
+  // 30分タイマーボタン
+  const startSess = document.getElementById('wnw-sess-start-btn');
+  const pauseSess = document.getElementById('wnw-sess-pause-btn');
+  const resetSess = document.getElementById('wnw-sess-reset-btn');
+  if (startSess) startSess.addEventListener('click', startWnwSessionTimer);
+  if (pauseSess) pauseSess.addEventListener('click', pauseWnwSessionTimer);
+  if (resetSess) resetSess.addEventListener('click', resetWnwSessionTimer);
+
+  // 歩数入力
+  const stepStartInput = document.getElementById('wnw-step-start');
+  const stepFinishInput = document.getElementById('wnw-step-finish');
+  if (stepStartInput) {
+    stepStartInput.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val) && val >= 0) {
+        appState.wnw.session.stepStart = val;
+        updateWnwSessionUI();
+      }
+    });
+  }
+  if (stepFinishInput) {
+    stepFinishInput.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val) && val >= 0) {
+        appState.wnw.session.stepFinish = val;
+        updateWnwSessionUI();
+      }
+    });
+  }
+
+  // 平均心拍数入力
+  const avgHrInput = document.getElementById('wnw-sess-avghr');
+  if (avgHrInput) {
+    avgHrInput.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val) && val >= 30) {
+        appState.wnw.session.avgHr = val;
+        updateWnwSessionUI();
+      }
+    });
+  }
+
+  // Borg ボタン
+  document.querySelectorAll('.wnw-borg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.wnw-borg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      appState.wnw.session.borg = parseInt(btn.getAttribute('data-borg'), 10);
+    });
+  });
+
+  // クイックカルテコピー
+  const copyBtn = document.getElementById('wnw-quick-copy-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      generateWnwChartText();
+      openChartModal('Walk \'n Watch プロトコル 実施カルテ');
+    });
+  }
+}
+
+function updateWnwScreeningUI() {
+  const elStatus = document.getElementById('wnw-eligibility-status');
+  const flagsStatus = document.getElementById('wnw-flags-status');
+  const overallBanner = document.getElementById('wnw-overall-decision');
+
+  // 適格性全チェック確認
+  const elAllPassed = Object.values(appState.wnw.eligibility).every(v => v === true);
+  if (elStatus) {
+    if (elAllPassed) {
+      elStatus.className = 'wnw-status-box safe';
+      elStatus.innerHTML = '<span class="wnw-status-icon">✅</span><span class="wnw-status-text">適格基準をすべて満たしています。</span>';
+    } else {
+      elStatus.className = 'wnw-status-box danger';
+      elStatus.innerHTML = '<span class="wnw-status-icon">⚠️</span><span class="wnw-status-text">未チェックの適格基準があります（5歩歩行やリハビリ目標等）。</span>';
+    }
+  }
+
+  // Red Flags確認
+  const hasFlag = Object.values(appState.wnw.flags).some(v => v === true);
+  if (flagsStatus) {
+    if (!hasFlag) {
+      flagsStatus.className = 'wnw-status-box safe';
+      flagsStatus.innerHTML = '<span class="wnw-status-icon">🛡️</span><span class="wnw-status-text">危険徴候（Red Flags）はありません。</span>';
+    } else {
+      flagsStatus.className = 'wnw-status-box danger';
+      flagsStatus.innerHTML = '<span class="wnw-status-icon">🚨</span><span class="wnw-status-text">危険徴候（Red Flags）が認められます。医師への相談が必要です。</span>';
+    }
+  }
+
+  // 血圧チェック
+  const bp1Sys = parseInt(document.getElementById('wnw-bp1-sys')?.value, 10);
+  const bp1Dia = parseInt(document.getElementById('wnw-bp1-dia')?.value, 10);
+  const bp1Hr = parseInt(document.getElementById('wnw-bp1-hr')?.value, 10);
+
+  const bp1Ok = !isNaN(bp1Sys) && !isNaN(bp1Dia) && !isNaN(bp1Hr) && bp1Sys < 180 && bp1Dia < 100 && bp1Hr < 100;
+  const bp1Res = document.getElementById('wnw-bp1-res');
+  if (bp1Res) {
+    bp1Res.textContent = bp1Ok ? 'OK' : '高値/要注意';
+    bp1Res.className = bp1Ok ? 'text-success' : 'text-danger';
+  }
+
+  // 総合判断
+  const isGo = elAllPassed && !hasFlag && bp1Ok;
+  if (overallBanner) {
+    if (isGo) {
+      overallBanner.className = 'wnw-decision-banner pass';
+      overallBanner.innerHTML = `
+        <div class="wnw-decision-main">
+          <span class="decision-icon">🟢</span>
+          <div>
+            <strong>GO: 6分間歩行テスト（6MWT）へ進んでください</strong>
+            <p>すべての適格条件を満たし、安全性基準をクリアしています。</p>
+          </div>
+        </div>
+        <button type="button" class="wnw-jump-btn" id="wnw-goto-6mwt-btn">6分間歩行テストへ ➔</button>
+      `;
+      document.getElementById('wnw-goto-6mwt-btn')?.addEventListener('click', () => {
+        document.querySelector('#view-wnw .tab-btn[data-tab="wnw-6mwt"]')?.click();
+      });
+    } else {
+      overallBanner.className = 'wnw-decision-banner stop';
+      overallBanner.innerHTML = `
+        <div class="wnw-decision-main">
+          <span class="decision-icon">🔴</span>
+          <div>
+            <strong>STOP: 担当医師または看護師へ確認・相談してください</strong>
+            <p>適格基準の不足またはRed Flags・バイタル高値が検出されています。</p>
+          </div>
+        </div>
+      `;
+    }
+  }
+}
+
+// 6MWT タイマー
+function formatTimerMinSec(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function startWnw6mwtTimer() {
+  if (appState.wnw.sixMwt.timerRunning) return;
+  appState.wnw.sixMwt.timerRunning = true;
+  document.getElementById('wnw-6mwt-start-btn').disabled = true;
+  document.getElementById('wnw-6mwt-pause-btn').disabled = false;
+  if (appState.soundEnabled) playStartBeep();
+
+  appState.wnw.sixMwt.timerInterval = setInterval(() => {
+    appState.wnw.sixMwt.timerSeconds--;
+    updateWnw6mwtTimerDisplay();
+
+    if (appState.wnw.sixMwt.timerSeconds <= 0) {
+      pauseWnw6mwtTimer();
+      if (appState.soundEnabled) playStopBeep();
+      if (appState.vibrateEnabled) triggerVibration();
+      alert('6分間が経過しました！その場で立ち止まるよう指示し、歩行距離を計測してください。');
+    }
+  }, 1000);
+}
+
+function pauseWnw6mwtTimer() {
+  appState.wnw.sixMwt.timerRunning = false;
+  clearInterval(appState.wnw.sixMwt.timerInterval);
+  document.getElementById('wnw-6mwt-start-btn').disabled = false;
+  document.getElementById('wnw-6mwt-pause-btn').disabled = true;
+}
+
+function resetWnw6mwtTimer() {
+  pauseWnw6mwtTimer();
+  appState.wnw.sixMwt.timerSeconds = 360;
+  updateWnw6mwtTimerDisplay();
+}
+
+function updateWnw6mwtTimerDisplay() {
+  const timerEl = document.getElementById('wnw-6mwt-timer');
+  const cueTime = document.getElementById('wnw-cue-time');
+  const cueText = document.getElementById('wnw-cue-text');
+  const s = appState.wnw.sixMwt.timerSeconds;
+
+  if (timerEl) timerEl.textContent = formatTimerMinSec(s);
+
+  // 定型ガイダンス（経過時間: 360 - s）
+  const elapsed = 360 - s;
+  if (cueTime && cueText) {
+    if (elapsed === 0) {
+      cueTime.textContent = '開始前';
+      cueText.textContent = '「このテストの目的は、6分間でできるだけ遠くまで歩くことです。走ったりジョギングはできません。疲れたら速度を落としたり、立ち止まって休んでも構いません。」';
+    } else if (elapsed < 60) {
+      cueTime.textContent = '1分未満';
+      cueText.textContent = '患者の横または斜め後ろに付き添い、安全を確保しながら見守ります（私語は控え、タイムコールのみ行います）。';
+    } else if (elapsed >= 60 && elapsed < 120) {
+      cueTime.textContent = '1分経過';
+      cueText.textContent = '📢 声かけ: 「順調です。残り5分です。」（You are doing well. You have 5 minutes to go.）';
+    } else if (elapsed >= 120 && elapsed < 180) {
+      cueTime.textContent = '2分経過';
+      cueText.textContent = '📢 声かけ: 「その調子です。残り4分です。」（Keep up the good work. You have 4 minutes to go.）';
+    } else if (elapsed >= 180 && elapsed < 240) {
+      cueTime.textContent = '3分経過 (中間地点)';
+      cueText.textContent = '📢 声かけ: 「順調です。ちょうど半分終わりました。」（You are doing well. You are halfway done.）';
+    } else if (elapsed >= 240 && elapsed < 300) {
+      cueTime.textContent = '4分経過';
+      cueText.textContent = '📢 声かけ: 「その調子です。あと2分です。」（Keep up the good work. You have only 2 minutes left.）';
+    } else if (elapsed >= 300 && elapsed < 345) {
+      cueTime.textContent = '5分経過';
+      cueText.textContent = '📢 声かけ: 「順調です。残りあと1分です。」（You are doing well. You have only 1 minute to go.）';
+    } else if (elapsed >= 345 && elapsed < 360) {
+      cueTime.textContent = '5分45秒経過 (ラストスパート)';
+      cueText.textContent = '📢 声かけ: 「まもなく終了の合図をします。合図があったらその場で止まってください。」';
+    } else {
+      cueTime.textContent = '6分終了';
+      cueText.textContent = '📢 声かけ: 「止まってください。椅子に座って休んでください。」';
+    }
+  }
+}
+
+function setWnw6mwtPass(passed) {
+  appState.wnw.sixMwt.passed = passed;
+  document.getElementById('btn-6mwt-pass')?.classList.toggle('active', passed);
+  document.getElementById('btn-6mwt-fail')?.classList.toggle('active', !passed);
+  updateWnw6mwtTargets();
+}
+
+function updateWnw6mwtTargets() {
+  const dist = appState.wnw.sixMwt.dist;
+  const echoEl = document.getElementById('disp-6mwt-dist-echo');
+  if (echoEl) echoEl.textContent = `${dist}m`;
+
+  const w1El = document.getElementById('disp-w1-steps');
+  const w2El = document.getElementById('disp-w2-steps');
+  const w4El = document.getElementById('disp-w4-steps');
+
+  let w1 = 2000, w2 = 2500, w4 = 3000;
+  let bracket = 2;
+
+  if (dist < 100) {
+    w1 = 1000; w2 = 1500; w4 = 2000;
+    bracket = 1;
+  } else if (dist <= 200) {
+    w1 = 2000; w2 = 2500; w4 = 3000;
+    bracket = 2;
+  } else {
+    w1 = 3000; w2 = 3500; w4 = 4000;
+    bracket = 3;
+  }
+
+  if (w1El) w1El.textContent = w1.toLocaleString();
+  if (w2El) w2El.textContent = w2.toLocaleString();
+  if (w4El) w4El.textContent = w4.toLocaleString();
+
+  // テーブルハイライト
+  document.getElementById('row-bracket-1')?.classList.toggle('highlight-row', bracket === 1);
+  document.getElementById('row-bracket-2')?.classList.toggle('highlight-row', bracket === 2);
+  document.getElementById('row-bracket-3')?.classList.toggle('highlight-row', bracket === 3);
+
+  // セッションUIも連動更新
+  updateWnwSessionUI();
+}
+
+// 30分セッションタイマー
+function startWnwSessionTimer() {
+  if (appState.wnw.session.timerRunning) return;
+  appState.wnw.session.timerRunning = true;
+  document.getElementById('wnw-sess-start-btn').disabled = true;
+  document.getElementById('wnw-sess-pause-btn').disabled = false;
+  if (appState.soundEnabled) playStartBeep();
+
+  appState.wnw.session.timerInterval = setInterval(() => {
+    appState.wnw.session.timerSeconds--;
+    updateWnwSessionTimerDisplay();
+
+    if (appState.wnw.session.timerSeconds <= 0) {
+      pauseWnwSessionTimer();
+      if (appState.soundEnabled) playStopBeep();
+      if (appState.vibrateEnabled) triggerVibration();
+      alert('30分間の歩行セッションが終了しました！歩数計の終了数値を記録してください。');
+    }
+  }, 1000);
+}
+
+function pauseWnwSessionTimer() {
+  appState.wnw.session.timerRunning = false;
+  clearInterval(appState.wnw.session.timerInterval);
+  document.getElementById('wnw-sess-start-btn').disabled = false;
+  document.getElementById('wnw-sess-pause-btn').disabled = true;
+}
+
+function resetWnwSessionTimer() {
+  pauseWnwSessionTimer();
+  appState.wnw.session.timerSeconds = 1800;
+  updateWnwSessionTimerDisplay();
+}
+
+function updateWnwSessionTimerDisplay() {
+  const el = document.getElementById('wnw-sess-timer');
+  if (el) el.textContent = formatTimerMinSec(appState.wnw.session.timerSeconds);
+}
+
+function updateWnwSessionUI() {
+  const { week, age, hrRest, stepStart, stepFinish, avgHr } = appState.wnw.session;
+  const dist = appState.wnw.sixMwt.dist;
+
+  // 目標歩数の決定
+  let stepTarget = 3000;
+  if (dist < 100) {
+    if (week === 1) stepTarget = 1000;
+    else if (week === 2) stepTarget = 1500;
+    else stepTarget = 2000;
+  } else if (dist <= 200) {
+    if (week === 1) stepTarget = 2000;
+    else if (week === 2) stepTarget = 2500;
+    else stepTarget = 3000;
+  } else {
+    if (week === 1) stepTarget = 3000;
+    else if (week === 2) stepTarget = 3500;
+    else stepTarget = 4000;
+  }
+
+  // 目標%HRRの決定 (Week1: 40%, Week2: 45%, Week3: 50%, Week4: 60%)
+  let targetHrrPct = 40;
+  if (week === 2) targetHrrPct = 45;
+  if (week === 3) targetHrrPct = 50;
+  if (week === 4) targetHrrPct = 60;
+
+  // 目標心拍数（Tanaka式 HRmax = 208 - 0.7 * age）
+  const hrMax = Math.round(208 - 0.7 * age);
+  const hrr = hrMax - hrRest;
+  const targetHr = Math.round(hrRest + hrr * (targetHrrPct / 100));
+
+  // 表示更新
+  const todayStepEl = document.getElementById('disp-today-step-target');
+  const todayHrrEl = document.getElementById('disp-today-hrr-target');
+  const todayHrEl = document.getElementById('disp-today-target-hr');
+  if (todayStepEl) todayStepEl.textContent = `${stepTarget.toLocaleString()} 歩`;
+  if (todayHrrEl) todayHrrEl.textContent = `${targetHrrPct}% HRR`;
+  if (todayHrEl) todayHrEl.textContent = `${targetHr} bpm`;
+
+  // 獲得歩数計算
+  const calcSteps = Math.max(0, stepFinish - stepStart);
+  const calcStepsEl = document.getElementById('disp-calc-steps');
+  if (calcStepsEl) calcStepsEl.textContent = calcSteps.toLocaleString();
+
+  // 達成率
+  const pct = Math.round((calcSteps / stepTarget) * 100);
+  const pctEl = document.getElementById('disp-calc-step-pct');
+  const fillEl = document.getElementById('disp-meter-fill');
+  const feedbackEl = document.getElementById('disp-step-feedback');
+
+  if (pctEl) pctEl.textContent = `${pct}%`;
+  if (fillEl) fillEl.style.width = `${Math.min(pct, 100)}%`;
+
+  if (feedbackEl) {
+    if (pct >= 100) {
+      feedbackEl.innerHTML = `🎉 <strong>本日の目標達成（${pct}%）！</strong> 素晴らしい高反復歩行です。リハビリ効果が最大限に期待できます。`;
+    } else {
+      const remaining = stepTarget - calcSteps;
+      feedbackEl.innerHTML = `👏 <strong>よく頑張りました！（目標の${pct}%を達成）</strong><br>
+        残りの約 ${remaining.toLocaleString()} 歩は、夕方の病棟内歩行やご家族・看護師との自主トレ「宿題歩数」として促してみましょう（※目標は下げずに維持します）。`;
+    }
+  }
+
+  // 心拍強度判定
+  const achievedHrrPct = hrr > 0 ? Math.round(((avgHr - hrRest) / hrr) * 100) : 0;
+  const hrFeedbackEl = document.getElementById('disp-hr-feedback');
+  if (hrFeedbackEl) {
+    let zoneNote = '適正な中等度強度域です。';
+    if (achievedHrrPct < 35) zoneNote = 'やや低強度です。次回は歩行速度のアップや介助量の軽減を検討しましょう。';
+    else if (achievedHrrPct > 70) zoneNote = '高強度域に入っています。過負荷・息切れに留意してください。';
+
+    hrFeedbackEl.innerHTML = `
+      <div class="feedback-badge">心拍強度判定</div>
+      <div class="feedback-text">
+        平均心拍数 ${avgHr} bpm ➔ <strong>達成強度: 約 ${achievedHrrPct}% HRR</strong>（${zoneNote}）
+      </div>
+    `;
+  }
+}
+
+function generateWnwChartText() {
+  const { week, age, hrRest, stepStart, stepFinish, avgHr, borg } = appState.wnw.session;
+  const sixMwt = appState.wnw.sixMwt;
+  const calcSteps = Math.max(0, stepFinish - stepStart);
+
+  let stepTarget = 3000;
+  if (sixMwt.dist < 100) stepTarget = week === 1 ? 1000 : (week === 2 ? 1500 : 2000);
+  else if (sixMwt.dist <= 200) stepTarget = week === 1 ? 2000 : (week === 2 ? 2500 : 3000);
+  else stepTarget = week === 1 ? 3000 : (week === 2 ? 3500 : 4000);
+
+  const pct = Math.round((calcSteps / stepTarget) * 100);
+  const hrMax = Math.round(208 - 0.7 * age);
+  const hrr = hrMax - hrRest;
+  const achievedHrrPct = hrr > 0 ? Math.round(((avgHr - hrRest) / hrr) * 100) : 0;
+
+  const text = `【Walk 'n Watch プロトコル 実施記録】
+■ 評価・条件
+・介入ステージ: 第${week}週
+・患者情報: 年齢 ${age}歳 / 安静時心拍数 ${hrRest} bpm
+・初回6MWT距離: ${sixMwt.dist} m (${sixMwt.passed ? '完走 PASS' : '中止 FAIL'})
+・本日のセッション目標歩数: ${stepTarget.toLocaleString()} 歩
+
+■ 実施結果 (冒頭30分間歩行練習)
+・獲得歩数: ${calcSteps.toLocaleString()} 歩 (目標達成率: ${pct}%)
+  (歩数計: 開始 ${stepStart.toLocaleString()} 歩 ➔ 終了 ${stepFinish.toLocaleString()} 歩)
+・平均心拍数: ${avgHr} bpm (約 ${achievedHrrPct}% HRR)
+・自覚的運動強度: 修正Borg ${borg}/10 (トークテスト: 会話可能)
+・有害事象・自覚症状: なし (胸痛・めまい・過度な疲労等なし)
+
+■ 今後の方針
+・セッション外の活動: 不足歩数は病棟内での自主トレ・家族歩行（宿題歩数）として推奨。
+・次週プログレッション: 歩行速度向上・休憩時間の短縮を図り、高反復・中等度強度を維持。`;
+
+  const outputEl = document.getElementById('chart-text-output');
+  if (outputEl) outputEl.value = text;
+}
+
+function resetWnwData() {
+  initWnwState();
+  updateWnwScreeningUI();
+  updateWnw6mwtTargets();
+  updateWnwSessionUI();
+}
