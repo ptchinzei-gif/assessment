@@ -3363,3 +3363,16 @@ body {
 .domain-bar-fill.limb {
   background-color: #f59e0b;
 }
+
+.bbs-opt-btn.sara-opt-excluded {
+  border-style: dashed;
+  border-color: #94a3b8;
+  color: #475569;
+  background-color: #f1f5f9;
+}
+
+.bbs-opt-btn.sara-opt-excluded.active {
+  background-color: #475569;
+  border-color: #334155;
+  color: #ffffff;
+}

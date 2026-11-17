@@ -2560,128 +2560,132 @@ function resetWnwData() {
     const SARA_ITEMS = [
       {
         id: 1,
-        title: "1. 歩行 (Gait)",
-        desc: "検者と平行に10m歩行（半回転を含む）および10歩の継足歩行を評価します。",
+        title: "1）歩行",
+        desc: "①壁から安全な距離をとって壁と平行に歩き、方向転換し、②帰りは介助なしでつぎ足歩行（つま先に踵を継いで歩く）を行います。",
         isBilateral: false,
         maxScore: 8,
         options: [
-          { score: 0, text: "0点: 正常（歩行・方向転換・10歩の継足歩行で1回以下の踏み外し）" },
-          { score: 1, text: "1点: 軽度の困難（継足歩行・10m歩行・方向転換でのみ明らか）" },
-          { score: 2, text: "2点: 明らかに異常（10歩の継足歩行が不可能）" },
-          { score: 3, text: "3点: かなり不安定（よろめき、半回転に困難あり。補助具なし）" },
-          { score: 4, text: "4点: 著明なよろめき（壁への接触や支持が間欠的に必要）" },
-          { score: 5, text: "5点: 重度のよろめき（一本杖または介助者片腕の支持が常に必要）" },
-          { score: 6, text: "6点: 両手支持（歩行器や両手杖を用いてのみ10m以上歩行可能）" },
-          { score: 7, text: "7点: 歩行器でも10m未満しか歩けない、または強い介助を伴って歩行可能" },
-          { score: 8, text: "8点: 介助があっても歩行不可能" }
+          { score: 0, text: "0：正常。歩行、方向転換、つぎ足歩行が困難なく10歩より多くできる。（1回までの足の踏み外しは可）" },
+          { score: 1, text: "1：やや困難。つぎ足歩行は10歩より多くできるが、正常歩行ではない。" },
+          { score: 2, text: "2：明らかに異常。つぎ足歩行はできるが10歩を超えることができない。" },
+          { score: 3, text: "3：普通の歩行で無視できないふらつきがある。方向転換がしにくいが、支えは要らない。" },
+          { score: 4, text: "4：著しいふらつきがある。時々壁を伝う。" },
+          { score: 5, text: "5：激しいふらつきがある。常に、1本杖か、片方の腕に軽い介助が必要。" },
+          { score: 6, text: "6：しっかりとした介助があれば10mより長く歩ける。2本杖か歩行器か介助者が必要。" },
+          { score: 7, text: "7：しっかりとした介助があっても10mには届かない。2本杖か歩行器か介助が必要。" },
+          { score: 8, text: "8：介助があっても歩けない。" }
         ]
       },
       {
         id: 2,
-        title: "2. 立位 (Stance)",
-        desc: "靴を脱いで開眼で「自然な開脚立位」「両足を揃えた立位」「継足立位」を各10秒間保持します（最良の試行）。",
+        title: "2）立位",
+        desc: "靴を脱いで開眼で、順に①自然な姿勢、②足を揃えて（親趾同士をつける）、③つぎ足（一直線に踵とつま先の隙間なく）で立ちます。各肢位3回まで再施行可能、最高点を記載。",
         isBilateral: false,
         hasTimer: true,
         targetSec: 10,
         maxScore: 6,
         options: [
-          { score: 0, text: "0点: 正常（両足揃え立位・継足立位ともに動揺なく10秒以上保持）" },
-          { score: 1, text: "1点: 両足揃え立位は動揺なく保持できるが、継足立位は10秒保持できない" },
-          { score: 2, text: "2点: 両足揃え立位を10秒保持できるが、明らかな動揺がある" },
-          { score: 3, text: "3点: 自然な開脚立位を10秒保持できるが、両足揃え立位は10秒保持できない" },
-          { score: 4, text: "4点: 自然な開脚立位を10秒保持するために、片手など間欠的な支持が必要" },
-          { score: 5, text: "5点: 自然な開脚立位を10秒保持するために、片手など持続的な支持が必要" },
-          { score: 6, text: "6点: 1名の介助があっても立位を10秒保持できない" }
+          { score: 0, text: "0：正常。つぎ足で10秒より長く立てる。" },
+          { score: 1, text: "1：足を揃えて、動揺せずに立てるが、つぎ足で10秒より長く立てない。" },
+          { score: 2, text: "2：足を揃えて、10秒より長く立てるが動揺する。" },
+          { score: 3, text: "3：足を揃えて立つことはできないが、介助なしに、自然な肢位で10秒より長く立てる。" },
+          { score: 4, text: "4：軽い介助（間欠的）があれば、自然な肢位で10秒より長く立てる。" },
+          { score: 5, text: "5：常に片方の腕を支えれば、自然な肢位で10秒より長く立てる。" },
+          { score: 6, text: "6：常に片方の腕を支えても、10秒より長く立つことができない。" }
         ]
       },
       {
         id: 3,
-        title: "3. 座位 (Sitting)",
-        desc: "診察台に足底が床につかない状態で座り、両腕を前で組んで開眼で10秒以上保持します。",
+        title: "3）坐位",
+        desc: "開眼し、両上肢を前方に伸ばした姿勢で、足を浮かせてベッドに座ります。",
         isBilateral: false,
         hasTimer: true,
         targetSec: 10,
         maxScore: 4,
         options: [
-          { score: 0, text: "0点: 正常（動揺なく10秒以上座位保持可能）" },
-          { score: 1, text: "1点: 軽度の困難（間欠的な動揺あり）" },
-          { score: 2, text: "2点: 持続的な動揺があるが、支持なしで10秒以上保持可能" },
-          { score: 3, text: "3点: 支持なしでは10秒以上座位保持できない（間欠的な支持が必要）" },
-          { score: 4, text: "4点: 持続的な支持なしでは座位保持不可能" }
+          { score: 0, text: "0：正常。困難なく10秒より長く坐っていることが出来る。" },
+          { score: 1, text: "1：軽度困難、間欠的に動揺する。" },
+          { score: 2, text: "2：常に動揺しているが、介助無しに10秒より長く坐っていられる。" },
+          { score: 3, text: "3：時々介助するだけで10秒より長く坐っていられる。" },
+          { score: 4, text: "4：ずっと支えなければ10秒より長く坐っていることが出来ない。" }
         ]
       },
       {
         id: 4,
-        title: "4. 言語障害 (Speech disturbance)",
-        desc: "通常の会話の中で構音障害・発話の聞き取りにくさを評価します。",
+        title: "4）言語障害",
+        desc: "通常の会話で評価します。",
         isBilateral: false,
         maxScore: 6,
         options: [
-          { score: 0, text: "0点: 正常" },
-          { score: 1, text: "1点: 言語障害が疑われる（わずかな不明瞭さ等）" },
-          { score: 2, text: "2点: 発話異常は明らかだが、すべての単語が理解可能" },
-          { score: 3, text: "3点: 時折、単語が聞き取りにくい・理解しにくい" },
-          { score: 4, text: "4点: 多くの単語が聞き取りにくい・理解しにくい" },
-          { score: 5, text: "5点: ごくわずかな単語のみ理解可能" },
-          { score: 6, text: "6点: 発話不能（無言、または完全に理解不能）" }
+          { score: 0, text: "0：正常。" },
+          { score: 1, text: "1：わずかな言語障害が疑われる。" },
+          { score: 2, text: "2：言語障害があるが、容易に理解できる。" },
+          { score: 3, text: "3：時々、理解困難な言葉がある。" },
+          { score: 4, text: "4：多くの言葉が理解困難である。" },
+          { score: 5, text: "5：かろうじて単語が理解できる。" },
+          { score: 6, text: "6：単語を理解できない。言葉が出ない。" }
         ]
       },
       {
         id: 5,
-        title: "5. 指追い試験 (Finger chase)",
-        desc: "座位で検者の人差し指（約2秒ごとにランダムに約30cm移動×5回）を追い、最後の3回のズレを左右別に評価します。",
+        title: "5）指追い試験",
+        desc: "指が届く距離の中間位置から2秒かけて約30cmランダムに動かす検者の人差し指を5回追い、最後の3回の平均を評価します。",
         isBilateral: true,
         maxScore: 4,
         options: [
-          { score: 0, text: "0点: 測定障害（ズレ）なし" },
-          { score: 1, text: "1点: 目標から 5cm 未満のズレ" },
-          { score: 2, text: "2点: 目標から 5cm 以上 15cm 未満のズレ" },
-          { score: 3, text: "3点: 目標から 15cm 以上のズレ" },
-          { score: 4, text: "4点: 5回の指示動作を完遂できない" }
+          { score: 0, text: "0：測定障害なし。" },
+          { score: 1, text: "1：測定障害がある。5cm未満。" },
+          { score: 2, text: "2：測定障害がある。15cm未満。" },
+          { score: 3, text: "3：測定障害がある。15cmより大きい。" },
+          { score: 4, text: "4：5回行えない。" },
+          { score: 5, text: "5：検査不能（原疾患以外の理由：平均・総得点から除外）", isExcluded: true }
         ]
       },
       {
         id: 6,
-        title: "6. 鼻指鼻試験 (Nose-finger test)",
-        desc: "座位で自分の鼻と検者の静止した指（最大リーチの約90%）を交互に往復し、企図振戦の振幅を左右別に評価します。",
+        title: "6）鼻―指試験",
+        desc: "指が届く距離の90％の位置に示した検者の指と自分の鼻を普通のスピードで繰り返し往復し、振戦の振幅平均を評価します。",
         isBilateral: true,
         maxScore: 4,
         options: [
-          { score: 0, text: "0点: 振戦なし" },
-          { score: 1, text: "1点: 振幅 2cm 未満の振戦" },
-          { score: 2, text: "2点: 振幅 2cm 以上 5cm 未満の振戦" },
-          { score: 3, text: "3点: 振幅 5cm 以上の振戦" },
-          { score: 4, text: "4点: 5回の指示動作を完遂できない" }
+          { score: 0, text: "0：振戦なし。" },
+          { score: 1, text: "1：振戦がある。振幅は2cm未満。" },
+          { score: 2, text: "2：振戦がある。振幅は5cm未満。" },
+          { score: 3, text: "3：振戦がある。振幅は5cmより大きい。" },
+          { score: 4, text: "4：5回行えない。" },
+          { score: 5, text: "5：検査不能（原疾患以外の理由：平均・総得点から除外）", isExcluded: true }
         ]
       },
       {
         id: 7,
-        title: "7. 手回内・回外運動 (Fast alternating hand movements)",
-        desc: "座位で大腿の上で手掌と手背を交互にできるだけ速く10回叩き、規則性と10秒未満で完了できるかを左右別に評価します。",
+        title: "7）手の回内・回外運動",
+        desc: "大腿部の上で手の回内・回外運動をできるだけ速く正確に10回繰り返します（検者は7秒で行い手本とする）。所要時間を正確に測定。",
         isBilateral: true,
         hasTimer: true,
         targetSec: 10,
         maxScore: 4,
         options: [
-          { score: 0, text: "0点: 正常・規則的（10秒未満で完了）" },
-          { score: 1, text: "1点: わずかに不規則（10秒未満で完了）" },
-          { score: 2, text: "2点: 明らかに不規則で運動の区別が困難（10秒未満で完了）" },
-          { score: 3, text: "3点: 非常に不規則、または完了に10秒以上かかる" },
-          { score: 4, text: "4点: 10サイクルを完遂できない" }
+          { score: 0, text: "0：正常。規則正しく行なえる。10秒未満でできる。" },
+          { score: 1, text: "1：わずかに不規則。10秒未満でできる。" },
+          { score: 2, text: "2：明らかに不規則。1回の回内・回外運動が区別できない、もしくは中断する。しかし10秒未満でできる。" },
+          { score: 3, text: "3：きわめて不規則。10秒より長くかかるが10回行える。" },
+          { score: 4, text: "4：10回行えない。" },
+          { score: 5, text: "5：検査不能（原疾患以外の理由：平均・総得点から除外）", isExcluded: true }
         ]
       },
       {
         id: 8,
-        title: "8. 踵膝試験 (Heel-shin slide)",
-        desc: "仰臥位（脚が見える姿勢）で反対側の膝蓋骨から脛骨稜に沿って踵を足関節まで滑らせ持ち上げる動作を3回行い、左右別に評価します。",
+        title: "8）踵―すね試験",
+        desc: "ベッド上で横になり下肢が見えないようにします。踵を反対の膝に移動させ1秒以内ですねに沿って踵まで滑らせ戻す動作を片方ずつ3回連続で行います。",
         isBilateral: true,
         maxScore: 4,
         options: [
-          { score: 0, text: "0点: 正常" },
-          { score: 1, text: "1点: わずかに異常（脛骨との接触は保たれている）" },
-          { score: 2, text: "2点: 明らかに異常（脛骨から外れる：3回まで）" },
-          { score: 3, text: "3点: 重度に異常（脛骨から外れる：4回以上）" },
-          { score: 4, text: "4点: 課題を遂行できない" }
+          { score: 0, text: "0：正常。" },
+          { score: 1, text: "1：わずかに異常。踵はすねから離れない。" },
+          { score: 2, text: "2：明らかに異常。すねから離れる（3回まで）。" },
+          { score: 3, text: "3：きわめて異常。すねから離れる（4回以上）。" },
+          { score: 4, text: "4：行えない（3回ともすねにそってかかとをすべらすことができない）。" },
+          { score: 5, text: "5：検査不能（原疾患以外の理由：平均・総得点から除外）", isExcluded: true }
         ]
       }
     ];
@@ -2719,9 +2723,23 @@ function resetWnwData() {
         return val;
       }
       if (val && val.left !== null && val.right !== null) {
+        if (val.left === 5 && val.right === 5) return 'excluded';
+        if (val.left === 5) return val.right;
+        if (val.right === 5) return val.left;
         return (val.left + val.right) / 2;
       }
       return null;
+    }
+
+    function getSaraBadgeText(item, itemScore) {
+      if (itemScore === null) return '未';
+      if (itemScore === 'excluded') return '検査不能(除外)';
+      if (!item.isBilateral) return `${itemScore}点`;
+      const val = appState.sara.scores[item.id];
+      if (val.left === 5 || val.right === 5) {
+        return `採用 ${formatSaraScore(itemScore)}点 (片側除外)`;
+      }
+      return `平均 ${formatSaraScore(itemScore)}点`;
     }
 
     function renderSaraItems() {
@@ -2735,9 +2753,8 @@ function resetWnwData() {
         card.id = `sara-card-${item.id}`;
 
         const itemScore = getSaraItemScore(item.id);
-        let scoreLabel = '未';
+        const scoreLabel = getSaraBadgeText(item, itemScore);
         if (itemScore !== null) {
-          scoreLabel = item.isBilateral ? `平均 ${formatSaraScore(itemScore)}点` : `${itemScore}点`;
           card.classList.add('completed');
         }
 
@@ -2771,11 +2788,18 @@ function resetWnwData() {
           const leftScore = val.left;
           const rightScore = val.right;
 
+          const formatSideBadge = (s) => {
+            if (s === null) return '未';
+            if (s === 5) return '5(除外)';
+            return `${s}点`;
+          };
+
           const renderSideOptions = (side, currentSideScore) => {
             return item.options.map(opt => {
               const isActive = currentSideScore === opt.score ? 'active' : '';
+              const exCls = opt.isExcluded ? 'sara-opt-excluded' : '';
               return `
-                <button type="button" class="bbs-opt-btn ${isActive}" data-sara-item="${item.id}" data-side="${side}" data-score="${opt.score}" onclick="selectSaraScore(${item.id}, ${opt.score}, '${side}')">
+                <button type="button" class="bbs-opt-btn ${exCls} ${isActive}" data-sara-item="${item.id}" data-side="${side}" data-score="${opt.score}" onclick="selectSaraScore(${item.id}, ${opt.score}, '${side}')">
                   <span>${opt.text}</span>
                 </button>
               `;
@@ -2786,23 +2810,23 @@ function resetWnwData() {
             <div class="sara-bilateral-grid">
               <div class="sara-side-box">
                 <div class="sara-side-header">
-                  <span class="sara-side-title">◀ 左側 (Left)</span>
-                  <span class="sara-side-score" id="sara-side-badge-${item.id}-left">${leftScore !== null ? leftScore + '点' : '未'}</span>
+                  <span class="sara-side-title">右側 (Right)</span>
+                  <span class="sara-side-score" id="sara-side-badge-${item.id}-right">${formatSideBadge(rightScore)}</span>
                 </div>
-                <div class="sara-side-options">${renderSideOptions('left', leftScore)}</div>
+                <div class="sara-side-options">${renderSideOptions('right', rightScore)}</div>
               </div>
               <div class="sara-side-box">
                 <div class="sara-side-header">
-                  <span class="sara-side-title">右側 (Right) ▶</span>
-                  <span class="sara-side-score" id="sara-side-badge-${item.id}-right">${rightScore !== null ? rightScore + '点' : '未'}</span>
+                  <span class="sara-side-title">左側 (Left)</span>
+                  <span class="sara-side-score" id="sara-side-badge-${item.id}-left">${formatSideBadge(leftScore)}</span>
                 </div>
-                <div class="sara-side-options">${renderSideOptions('right', rightScore)}</div>
+                <div class="sara-side-options">${renderSideOptions('left', leftScore)}</div>
               </div>
             </div>
           `;
         }
 
-        const bilateralTag = item.isBilateral ? '<span class="sara-bilateral-badge">左右平均</span>' : '';
+        const bilateralTag = item.isBilateral ? '<span class="sara-bilateral-badge">左右平均 (R+L)/2</span>' : '';
 
         card.innerHTML = `
           <div class="bbs-item-head">
@@ -2828,7 +2852,7 @@ function resetWnwData() {
       if (item.isBilateral && side) {
         appState.sara.scores[itemId][side] = score;
         const sideBadge = document.getElementById(`sara-side-badge-${itemId}-${side}`);
-        if (sideBadge) sideBadge.textContent = `${score}点`;
+        if (sideBadge) sideBadge.textContent = score === 5 ? '5(除外)' : `${score}点`;
 
         const btns = document.querySelectorAll(`button[data-sara-item="${itemId}"][data-side="${side}"]`);
         btns.forEach(btn => {
@@ -2853,7 +2877,7 @@ function resetWnwData() {
       if (itemScore !== null) {
         if (card) card.classList.add('completed');
         if (badge) {
-          badge.textContent = item.isBilateral ? `平均 ${formatSaraScore(itemScore)}点` : `${itemScore}点`;
+          badge.textContent = getSaraBadgeText(item, itemScore);
           badge.classList.add('scored');
         }
       }
@@ -2902,11 +2926,13 @@ function resetWnwData() {
       SARA_ITEMS.forEach(item => {
         const s = getSaraItemScore(item.id);
         if (s !== null) {
-          total += s;
           completed++;
-          if (item.id >= 1 && item.id <= 3) axial += s;
-          else if (item.id === 4) speech += s;
-          else if (item.id >= 5 && item.id <= 8) limb += s;
+          if (s !== 'excluded') {
+            total += s;
+            if (item.id >= 1 && item.id <= 3) axial += s;
+            else if (item.id === 4) speech += s;
+            else if (item.id >= 5 && item.id <= 8) limb += s;
+          }
         }
       });
 
@@ -3048,21 +3074,32 @@ function resetWnwData() {
         } else {
           const v = appState.sara.scores[item.id];
           const avg = getSaraItemScore(item.id);
-          const lStr = v.left !== null ? `${v.left}点` : '未';
-          const rStr = v.right !== null ? `${v.right}点` : '未';
-          const avgStr = avg !== null ? `${formatSaraScore(avg)}点` : '未測定';
-          details += `・${item.title}: 平均 ${avgStr} / ${item.maxScore}点 (左:${lStr}, 右:${rStr})\n`;
+          const formatSide = (val) => {
+            if (val === null) return '未';
+            if (val === 5) return '5(検査不能/除外)';
+            return `${val}点`;
+          };
+          const rStr = formatSide(v.right);
+          const lStr = formatSide(v.left);
+          if (avg === 'excluded') {
+            details += `・${item.title}: 検査不能（総得点から除外） (右:${rStr}, 左:${lStr})\n`;
+          } else if (avg !== null && (v.right === 5 || v.left === 5)) {
+            details += `・${item.title}: 採用 ${formatSaraScore(avg)}点 / ${item.maxScore}点 [片側除外] (右:${rStr}, 左:${lStr})\n`;
+          } else {
+            const avgStr = avg !== null ? `${formatSaraScore(avg)}点` : '未測定';
+            details += `・${item.title}: 平均 ${avgStr} / ${item.maxScore}点 (右:${rStr}, 左:${lStr})\n`;
+          }
         }
       });
 
-      return `【SARA（小脳性運動失調評価）】
+      return `【SARA（Scale for the Assessment and Rating of Ataxia）】
 ・合計得点: ${formatSaraScore(totalScore)} / 40点（入力完了: ${completedCount}/8項目）
 ・重症度判定: ${sev.label}（${sev.desc}）
 ・領域別内訳: 体幹・姿勢 ${formatSaraScore(axialScore)}/18点 | 構音 ${formatSaraScore(speechScore)}/6点 | 四肢失調 ${formatSaraScore(limbScore)}/16点
 
 ■ 項目別詳細
 ${details.trim()}
-※0点が正常、高得点ほど失調が重度（項目5〜8は左右平均点）。`;
+※0点が正常、高得点ほど失調が重度（項目5〜8は左右平均、5＝原疾患以外の理由による検査不能は総得点から除外）。`;
     }
 
 
