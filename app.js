@@ -85,8 +85,53 @@
         hrMaxModerate: { min: 103, max: 119 },
         hrMaxHigh: { min: 120, max: 142 },
         last10sPulse: null
+      },
+
+      wnw: {
+        eligibility: { el1: true, el2: true, el3: true, el4: true, el5: true, el6: true },
+        flags: { hr: false, sbp: false, dbp: false, spo2: false, angina: false, arrhythmia: false, valve: false, recent: false },
+        sixMwt: {
+          timerSeconds: 360,
+          timerRunning: false,
+          timerInterval: null,
+          dist: 150,
+          passed: true
+        },
+        session: {
+          week: 4,
+          age: 70,
+          hrRest: 72,
+          timerSeconds: 1800,
+          timerRunning: false,
+          timerInterval: null,
+          stepStart: 0,
+          stepFinish: 2450,
+          avgHr: 118,
+          borg: 3
+        }
+      },
+
+      sara: {
+        scores: {
+          1: null,
+          2: null,
+          3: null,
+          4: null,
+          5: { left: null, right: null },
+          6: { left: null, right: null },
+          7: { left: null, right: null },
+          8: { left: null, right: null }
+        },
+        totalScore: 0,
+        axialScore: 0,
+        speechScore: 0,
+        limbScore: 0,
+        completedCount: 0,
+        timers: {}
       }
     };
+
+    const WNW_DEFAULTS = JSON.parse(JSON.stringify(appState.wnw));
 
     // BBS 14項目 マスターデータ規程
     const BBS_ITEMS = [
@@ -374,6 +419,7 @@
       setupBbsEvents();
       setupExerciseEvents();
       setupWnwEvents();
+      setupSaraEvents();
       setupCommonModalEvents();
 
       updateWalkUI();
@@ -385,6 +431,7 @@
       updateWnwScreeningUI();
       updateWnw6mwtTargets();
       updateWnwSessionUI();
+      updateSaraUI();
       console.log('RehaMetrics: 準備完了');
     }
 
@@ -434,6 +481,11 @@
             resetWnwData();
           }
         }
+        else if (appState.currentAssessment === 'sara') {
+          if (confirm('SARAの全記録をリセットしますか？')) {
+            resetSaraData();
+          }
+        }
       });
 
       document.querySelectorAll('.nav-tabs').forEach(tabNav => {
@@ -454,6 +506,7 @@
             if (targetTabId === 'walk-feedback') updateWalkFeedback();
             if (targetTabId === 'sppb-feedback') updateSppbFeedback();
             if (targetTabId === 'bbs-feedback') updateBbsFeedback();
+            if (targetTabId === 'sara-feedback') updateSaraFeedback();
           });
         });
       });
@@ -470,6 +523,10 @@
         updateWnwScreeningUI();
         updateWnw6mwtTargets();
         updateWnwSessionUI();
+      }
+      document.getElementById('view-sara').classList.toggle('active', assessmentId === 'sara');
+      if (assessmentId === 'sara') {
+        updateSaraUI();
       }
       if (assessmentId === 'sppb') {
         updateSppbUI();
@@ -1955,37 +2012,12 @@
       }, 2500);
     }
 
-    // 読み込み直後に確実に初期化を実行
-    initApp();
+    // (initApp is moved to the very bottom of script)
   
 
 // ==========================================
 // Walk 'n Watch (UBCプロトコル) ロジック
 // ==========================================
-
-const WNW_DEFAULTS = {
-  eligibility: { el1: true, el2: true, el3: true, el4: true, el5: true, el6: true },
-  flags: { hr: false, sbp: false, dbp: false, spo2: false, angina: false, arrhythmia: false, valve: false, recent: false },
-  sixMwt: {
-    timerSeconds: 360,
-    timerRunning: false,
-    timerInterval: null,
-    dist: 150,
-    passed: true
-  },
-  session: {
-    week: 4,
-    age: 70,
-    hrRest: 72,
-    timerSeconds: 1800,
-    timerRunning: false,
-    timerInterval: null,
-    stepStart: 0,
-    stepFinish: 2450,
-    avgHr: 118,
-    borg: 3
-  }
-};
 
 function initWnwState() {
   appState.wnw = JSON.parse(JSON.stringify(WNW_DEFAULTS));
@@ -2050,13 +2082,16 @@ function setupWnwEvents() {
   // 6MWT 結果距離
   const distInput = document.getElementById('wnw-6mwt-dist');
   if (distInput) {
-    distInput.addEventListener('input', (e) => {
+    const handleDistChange = (e) => {
       const val = parseInt(e.target.value, 10);
       if (!isNaN(val) && val >= 0) {
         appState.wnw.sixMwt.dist = val;
         updateWnw6mwtTargets();
       }
-    });
+    };
+    distInput.addEventListener('input', handleDistChange);
+    distInput.addEventListener('change', handleDistChange);
+    distInput.addEventListener('keyup', handleDistChange);
   }
 
   // PASS / FAIL ボタン
@@ -2517,4 +2552,523 @@ function resetWnwData() {
   updateWnwScreeningUI();
   updateWnw6mwtTargets();
   updateWnwSessionUI();
+}
+
+    // ========================================================
+    // SARA（小脳性運動失調評価）マスターデータ＆ロジック
+    // ========================================================
+    const SARA_ITEMS = [
+      {
+        id: 1,
+        title: "1. 歩行 (Gait)",
+        desc: "検者と平行に10m歩行（半回転を含む）および10歩の継足歩行を評価します。",
+        isBilateral: false,
+        maxScore: 8,
+        options: [
+          { score: 0, text: "0点: 正常（歩行・方向転換・10歩の継足歩行で1回以下の踏み外し）" },
+          { score: 1, text: "1点: 軽度の困難（継足歩行・10m歩行・方向転換でのみ明らか）" },
+          { score: 2, text: "2点: 明らかに異常（10歩の継足歩行が不可能）" },
+          { score: 3, text: "3点: かなり不安定（よろめき、半回転に困難あり。補助具なし）" },
+          { score: 4, text: "4点: 著明なよろめき（壁への接触や支持が間欠的に必要）" },
+          { score: 5, text: "5点: 重度のよろめき（一本杖または介助者片腕の支持が常に必要）" },
+          { score: 6, text: "6点: 両手支持（歩行器や両手杖を用いてのみ10m以上歩行可能）" },
+          { score: 7, text: "7点: 歩行器でも10m未満しか歩けない、または強い介助を伴って歩行可能" },
+          { score: 8, text: "8点: 介助があっても歩行不可能" }
+        ]
+      },
+      {
+        id: 2,
+        title: "2. 立位 (Stance)",
+        desc: "靴を脱いで開眼で「自然な開脚立位」「両足を揃えた立位」「継足立位」を各10秒間保持します（最良の試行）。",
+        isBilateral: false,
+        hasTimer: true,
+        targetSec: 10,
+        maxScore: 6,
+        options: [
+          { score: 0, text: "0点: 正常（両足揃え立位・継足立位ともに動揺なく10秒以上保持）" },
+          { score: 1, text: "1点: 両足揃え立位は動揺なく保持できるが、継足立位は10秒保持できない" },
+          { score: 2, text: "2点: 両足揃え立位を10秒保持できるが、明らかな動揺がある" },
+          { score: 3, text: "3点: 自然な開脚立位を10秒保持できるが、両足揃え立位は10秒保持できない" },
+          { score: 4, text: "4点: 自然な開脚立位を10秒保持するために、片手など間欠的な支持が必要" },
+          { score: 5, text: "5点: 自然な開脚立位を10秒保持するために、片手など持続的な支持が必要" },
+          { score: 6, text: "6点: 1名の介助があっても立位を10秒保持できない" }
+        ]
+      },
+      {
+        id: 3,
+        title: "3. 座位 (Sitting)",
+        desc: "診察台に足底が床につかない状態で座り、両腕を前で組んで開眼で10秒以上保持します。",
+        isBilateral: false,
+        hasTimer: true,
+        targetSec: 10,
+        maxScore: 4,
+        options: [
+          { score: 0, text: "0点: 正常（動揺なく10秒以上座位保持可能）" },
+          { score: 1, text: "1点: 軽度の困難（間欠的な動揺あり）" },
+          { score: 2, text: "2点: 持続的な動揺があるが、支持なしで10秒以上保持可能" },
+          { score: 3, text: "3点: 支持なしでは10秒以上座位保持できない（間欠的な支持が必要）" },
+          { score: 4, text: "4点: 持続的な支持なしでは座位保持不可能" }
+        ]
+      },
+      {
+        id: 4,
+        title: "4. 言語障害 (Speech disturbance)",
+        desc: "通常の会話の中で構音障害・発話の聞き取りにくさを評価します。",
+        isBilateral: false,
+        maxScore: 6,
+        options: [
+          { score: 0, text: "0点: 正常" },
+          { score: 1, text: "1点: 言語障害が疑われる（わずかな不明瞭さ等）" },
+          { score: 2, text: "2点: 発話異常は明らかだが、すべての単語が理解可能" },
+          { score: 3, text: "3点: 時折、単語が聞き取りにくい・理解しにくい" },
+          { score: 4, text: "4点: 多くの単語が聞き取りにくい・理解しにくい" },
+          { score: 5, text: "5点: ごくわずかな単語のみ理解可能" },
+          { score: 6, text: "6点: 発話不能（無言、または完全に理解不能）" }
+        ]
+      },
+      {
+        id: 5,
+        title: "5. 指追い試験 (Finger chase)",
+        desc: "座位で検者の人差し指（約2秒ごとにランダムに約30cm移動×5回）を追い、最後の3回のズレを左右別に評価します。",
+        isBilateral: true,
+        maxScore: 4,
+        options: [
+          { score: 0, text: "0点: 測定障害（ズレ）なし" },
+          { score: 1, text: "1点: 目標から 5cm 未満のズレ" },
+          { score: 2, text: "2点: 目標から 5cm 以上 15cm 未満のズレ" },
+          { score: 3, text: "3点: 目標から 15cm 以上のズレ" },
+          { score: 4, text: "4点: 5回の指示動作を完遂できない" }
+        ]
+      },
+      {
+        id: 6,
+        title: "6. 鼻指鼻試験 (Nose-finger test)",
+        desc: "座位で自分の鼻と検者の静止した指（最大リーチの約90%）を交互に往復し、企図振戦の振幅を左右別に評価します。",
+        isBilateral: true,
+        maxScore: 4,
+        options: [
+          { score: 0, text: "0点: 振戦なし" },
+          { score: 1, text: "1点: 振幅 2cm 未満の振戦" },
+          { score: 2, text: "2点: 振幅 2cm 以上 5cm 未満の振戦" },
+          { score: 3, text: "3点: 振幅 5cm 以上の振戦" },
+          { score: 4, text: "4点: 5回の指示動作を完遂できない" }
+        ]
+      },
+      {
+        id: 7,
+        title: "7. 手回内・回外運動 (Fast alternating hand movements)",
+        desc: "座位で大腿の上で手掌と手背を交互にできるだけ速く10回叩き、規則性と10秒未満で完了できるかを左右別に評価します。",
+        isBilateral: true,
+        hasTimer: true,
+        targetSec: 10,
+        maxScore: 4,
+        options: [
+          { score: 0, text: "0点: 正常・規則的（10秒未満で完了）" },
+          { score: 1, text: "1点: わずかに不規則（10秒未満で完了）" },
+          { score: 2, text: "2点: 明らかに不規則で運動の区別が困難（10秒未満で完了）" },
+          { score: 3, text: "3点: 非常に不規則、または完了に10秒以上かかる" },
+          { score: 4, text: "4点: 10サイクルを完遂できない" }
+        ]
+      },
+      {
+        id: 8,
+        title: "8. 踵膝試験 (Heel-shin slide)",
+        desc: "仰臥位（脚が見える姿勢）で反対側の膝蓋骨から脛骨稜に沿って踵を足関節まで滑らせ持ち上げる動作を3回行い、左右別に評価します。",
+        isBilateral: true,
+        maxScore: 4,
+        options: [
+          { score: 0, text: "0点: 正常" },
+          { score: 1, text: "1点: わずかに異常（脛骨との接触は保たれている）" },
+          { score: 2, text: "2点: 明らかに異常（脛骨から外れる：3回まで）" },
+          { score: 3, text: "3点: 重度に異常（脛骨から外れる：4回以上）" },
+          { score: 4, text: "4点: 課題を遂行できない" }
+        ]
+      }
+    ];
+
+    function setupSaraEvents() {
+      renderSaraItems();
+
+      const clearBtn = document.getElementById('btn-clear-sara');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          if (confirm('SARAの全記録をリセットしますか？')) {
+            resetSaraData();
+          }
+        });
+      }
+
+      const copyBtn = document.getElementById('sara-quick-copy-btn');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+          openChartModal('【SARA】カルテ転記', generateSaraChartText());
+        });
+      }
+    }
+
+    function formatSaraScore(val) {
+      if (val === null || val === undefined) return '0';
+      return Number.isInteger(val) ? `${val}` : val.toFixed(1);
+    }
+
+    function getSaraItemScore(itemId) {
+      const item = SARA_ITEMS.find(i => i.id === itemId);
+      if (!item) return null;
+      const val = appState.sara.scores[itemId];
+      if (!item.isBilateral) {
+        return val;
+      }
+      if (val && val.left !== null && val.right !== null) {
+        return (val.left + val.right) / 2;
+      }
+      return null;
+    }
+
+    function renderSaraItems() {
+      const container = document.getElementById('sara-items-container');
+      if (!container) return;
+
+      container.innerHTML = '';
+      SARA_ITEMS.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'bbs-item-card';
+        card.id = `sara-card-${item.id}`;
+
+        const itemScore = getSaraItemScore(item.id);
+        let scoreLabel = '未';
+        if (itemScore !== null) {
+          scoreLabel = item.isBilateral ? `平均 ${formatSaraScore(itemScore)}点` : `${itemScore}点`;
+          card.classList.add('completed');
+        }
+
+        let timerHtml = '';
+        if (item.hasTimer) {
+          timerHtml = `
+            <div class="bbs-item-timer-bar">
+              <button type="button" class="bbs-timer-btn" id="sara-timer-btn-${item.id}" onclick="toggleSaraItemTimer(${item.id}, ${item.targetSec})">
+                ⏱️ 計測スタート (${item.targetSec}秒)
+              </button>
+              <span class="bbs-timer-time" id="sara-timer-disp-${item.id}">0.0秒</span>
+            </div>
+          `;
+        }
+
+        let bodyHtml = '';
+        if (!item.isBilateral) {
+          const currentScore = appState.sara.scores[item.id];
+          let optionsHtml = '';
+          item.options.forEach(opt => {
+            const isActive = currentScore === opt.score ? 'active' : '';
+            optionsHtml += `
+              <button type="button" class="bbs-opt-btn ${isActive}" data-sara-item="${item.id}" data-score="${opt.score}" onclick="selectSaraScore(${item.id}, ${opt.score})">
+                <span>${opt.text}</span>
+              </button>
+            `;
+          });
+          bodyHtml = `<div class="bbs-options-grid">${optionsHtml}</div>`;
+        } else {
+          const val = appState.sara.scores[item.id];
+          const leftScore = val.left;
+          const rightScore = val.right;
+
+          const renderSideOptions = (side, currentSideScore) => {
+            return item.options.map(opt => {
+              const isActive = currentSideScore === opt.score ? 'active' : '';
+              return `
+                <button type="button" class="bbs-opt-btn ${isActive}" data-sara-item="${item.id}" data-side="${side}" data-score="${opt.score}" onclick="selectSaraScore(${item.id}, ${opt.score}, '${side}')">
+                  <span>${opt.text}</span>
+                </button>
+              `;
+            }).join('');
+          };
+
+          bodyHtml = `
+            <div class="sara-bilateral-grid">
+              <div class="sara-side-box">
+                <div class="sara-side-header">
+                  <span class="sara-side-title">◀ 左側 (Left)</span>
+                  <span class="sara-side-score" id="sara-side-badge-${item.id}-left">${leftScore !== null ? leftScore + '点' : '未'}</span>
+                </div>
+                <div class="sara-side-options">${renderSideOptions('left', leftScore)}</div>
+              </div>
+              <div class="sara-side-box">
+                <div class="sara-side-header">
+                  <span class="sara-side-title">右側 (Right) ▶</span>
+                  <span class="sara-side-score" id="sara-side-badge-${item.id}-right">${rightScore !== null ? rightScore + '点' : '未'}</span>
+                </div>
+                <div class="sara-side-options">${renderSideOptions('right', rightScore)}</div>
+              </div>
+            </div>
+          `;
+        }
+
+        const bilateralTag = item.isBilateral ? '<span class="sara-bilateral-badge">左右平均</span>' : '';
+
+        card.innerHTML = `
+          <div class="bbs-item-head">
+            <div class="bbs-item-title-group">
+              <span class="bbs-item-num">${item.id}</span>
+              <span class="bbs-item-title">${item.title}${bilateralTag}</span>
+            </div>
+            <span class="bbs-item-score-badge ${itemScore !== null ? 'scored' : ''}" id="sara-badge-${item.id}">${scoreLabel}</span>
+          </div>
+          <div class="bbs-item-desc">${item.desc}</div>
+          ${timerHtml}
+          ${bodyHtml}
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function selectSaraScore(itemId, score, side = null) {
+      const item = SARA_ITEMS.find(i => i.id === itemId);
+      if (!item) return;
+
+      if (item.isBilateral && side) {
+        appState.sara.scores[itemId][side] = score;
+        const sideBadge = document.getElementById(`sara-side-badge-${itemId}-${side}`);
+        if (sideBadge) sideBadge.textContent = `${score}点`;
+
+        const btns = document.querySelectorAll(`button[data-sara-item="${itemId}"][data-side="${side}"]`);
+        btns.forEach(btn => {
+          btn.classList.toggle('active', parseInt(btn.getAttribute('data-score'), 10) === score);
+        });
+      } else {
+        appState.sara.scores[itemId] = score;
+        const btns = document.querySelectorAll(`button[data-sara-item="${itemId}"]`);
+        btns.forEach(btn => {
+          btn.classList.toggle('active', parseInt(btn.getAttribute('data-score'), 10) === score);
+        });
+      }
+
+      playStartBeep();
+      triggerVibration(40);
+      updateSaraScore();
+      updateSaraUI();
+
+      const itemScore = getSaraItemScore(itemId);
+      const card = document.getElementById(`sara-card-${itemId}`);
+      const badge = document.getElementById(`sara-badge-${itemId}`);
+      if (itemScore !== null) {
+        if (card) card.classList.add('completed');
+        if (badge) {
+          badge.textContent = item.isBilateral ? `平均 ${formatSaraScore(itemScore)}点` : `${itemScore}点`;
+          badge.classList.add('scored');
+        }
+      }
+    }
+
+    function toggleSaraItemTimer(itemId, targetSec) {
+      const btn = document.getElementById(`sara-timer-btn-${itemId}`);
+      const disp = document.getElementById(`sara-timer-disp-${itemId}`);
+      if (!btn || !disp) return;
+
+      if (appState.sara.timers[itemId]) {
+        clearInterval(appState.sara.timers[itemId].interval);
+        delete appState.sara.timers[itemId];
+        btn.classList.remove('running');
+        btn.textContent = `⏱️ 計測スタート (${targetSec}秒)`;
+        playStopBeep();
+        return;
+      }
+
+      const startTime = performance.now();
+      let targetNotified = false;
+      btn.classList.add('running');
+      btn.textContent = `⏹️ ストップ (計測中)`;
+      playStartBeep();
+
+      const interval = setInterval(() => {
+        const elapsed = (performance.now() - startTime) / 1000;
+        disp.textContent = `${elapsed.toFixed(1)}秒`;
+        if (!targetNotified && elapsed >= targetSec) {
+          targetNotified = true;
+          playStopBeep();
+          triggerVibration(100);
+        }
+      }, 100);
+
+      appState.sara.timers[itemId] = { interval };
+    }
+
+    function updateSaraScore() {
+      let total = 0;
+      let axial = 0;
+      let speech = 0;
+      let limb = 0;
+      let completed = 0;
+
+      SARA_ITEMS.forEach(item => {
+        const s = getSaraItemScore(item.id);
+        if (s !== null) {
+          total += s;
+          completed++;
+          if (item.id >= 1 && item.id <= 3) axial += s;
+          else if (item.id === 4) speech += s;
+          else if (item.id >= 5 && item.id <= 8) limb += s;
+        }
+      });
+
+      appState.sara.totalScore = total;
+      appState.sara.axialScore = axial;
+      appState.sara.speechScore = speech;
+      appState.sara.limbScore = limb;
+      appState.sara.completedCount = completed;
+    }
+
+    function getSaraSeverity(score, completed) {
+      if (completed === 0) {
+        return { label: '未測定', cls: '', desc: '全8項目を入力してください' };
+      }
+      if (score === 0) {
+        return { label: '正常 (失調なし)', cls: 'good', desc: '小脳性運動失調の徴候は認められません' };
+      }
+      if (score <= 9.5) {
+        return { label: '軽度失調', cls: 'good', desc: '軽度域（独歩・ADL自立を維持しやすい段階）' };
+      }
+      if (score <= 19.5) {
+        return { label: '中等度失調', cls: 'moderate', desc: '中等度域（歩行補助具・転倒予防の検討段階）' };
+      }
+      if (score <= 29.5) {
+        return { label: '重度失調', cls: 'severe', desc: '重度域（歩行器や介助・ADL支援が必要）' };
+      }
+      return { label: '最重度失調', cls: 'severe', desc: '最重度域（立位・歩行困難、介助・環境調整必須）' };
+    }
+
+    function updateSaraUI() {
+      const { totalScore, axialScore, speechScore, limbScore, completedCount } = appState.sara;
+
+      const totalEl = document.getElementById('sara-total-score');
+      if (totalEl) totalEl.textContent = formatSaraScore(totalScore);
+
+      const axialEl = document.getElementById('sara-sub-axial');
+      const speechEl = document.getElementById('sara-sub-speech');
+      const limbEl = document.getElementById('sara-sub-limb');
+      if (axialEl) axialEl.textContent = `${formatSaraScore(axialScore)} / 18`;
+      if (speechEl) speechEl.textContent = `${formatSaraScore(speechScore)} / 6`;
+      if (limbEl) limbEl.textContent = `${formatSaraScore(limbScore)} / 16`;
+
+      const progEl = document.getElementById('sara-progress-text');
+      if (progEl) progEl.textContent = `入力完了: ${completedCount} / 8項目`;
+
+      const sev = getSaraSeverity(totalScore, completedCount);
+      const badgeEl = document.getElementById('sara-rank-badge');
+      const descEl = document.getElementById('sara-rank-desc');
+      if (badgeEl) {
+        badgeEl.className = 'rank-badge';
+        if (sev.cls) badgeEl.classList.add(sev.cls);
+        badgeEl.textContent = sev.label;
+      }
+      if (descEl) descEl.textContent = sev.desc;
+
+      updateSaraFeedback();
+    }
+
+    function updateSaraFeedback() {
+      const { totalScore, axialScore, speechScore, limbScore, completedCount } = appState.sara;
+      const sev = getSaraSeverity(totalScore, completedCount);
+
+      const fbTotal = document.getElementById('fb-sara-total-score');
+      const fbTitle = document.getElementById('fb-sara-rank-title');
+      const fbDetail = document.getElementById('fb-sara-rank-detail');
+      const fbGauge = document.getElementById('fb-sara-gauge');
+      const talkBox = document.getElementById('sara-patient-talk-sample');
+
+      if (fbTotal) fbTotal.textContent = formatSaraScore(totalScore);
+      if (fbTitle) fbTitle.textContent = completedCount === 8 ? `${sev.label}（${formatSaraScore(totalScore)} / 40点）` : `${sev.label}（入力 ${completedCount}/8項目）`;
+      if (fbDetail) fbDetail.textContent = sev.desc;
+
+      if (fbGauge) {
+        fbGauge.className = 'sara-gauge';
+        if (sev.cls === 'good') fbGauge.classList.add('mild');
+        else if (sev.cls === 'moderate') fbGauge.classList.add('moderate');
+        else if (sev.cls === 'severe') fbGauge.classList.add('severe');
+      }
+
+      // ドメインバー更新
+      const axialPct = Math.round((axialScore / 18) * 100);
+      const speechPct = Math.round((speechScore / 6) * 100);
+      const limbPct = Math.round((limbScore / 16) * 100);
+
+      const axialText = document.getElementById('fb-sara-axial-text');
+      const speechText = document.getElementById('fb-sara-speech-text');
+      const limbText = document.getElementById('fb-sara-limb-text');
+      const axialBar = document.getElementById('fb-sara-axial-bar');
+      const speechBar = document.getElementById('fb-sara-speech-bar');
+      const limbBar = document.getElementById('fb-sara-limb-bar');
+
+      if (axialText) axialText.textContent = `${formatSaraScore(axialScore)} / 18点 (${axialPct}%)`;
+      if (speechText) speechText.textContent = `${formatSaraScore(speechScore)} / 6点 (${speechPct}%)`;
+      if (limbText) limbText.textContent = `${formatSaraScore(limbScore)} / 16点 (${limbPct}%)`;
+      if (axialBar) axialBar.style.width = `${axialPct}%`;
+      if (speechBar) speechBar.style.width = `${speechPct}%`;
+      if (limbBar) limbBar.style.width = `${limbPct}%`;
+
+      if (talkBox) {
+        if (completedCount === 0) {
+          talkBox.textContent = '全8項目の評価が完了すると、患者さんやご家族向けの分かりやすい説明文がここに表示されます。';
+        } else if (totalScore <= 9.5) {
+          talkBox.textContent = `「バランスや手足の動きを詳しく確認したところ、合計${formatSaraScore(totalScore)}点（軽度の範囲）でした。日常の移動は自立を保ちやすい状態ですので、細かいふらつきを抑える体幹や協調性の運動を続けていきましょう。」`;
+        } else if (totalScore <= 19.5) {
+          talkBox.textContent = `「検査の結果は合計${formatSaraScore(totalScore)}点（中等度の範囲）でした。特に方向転換や歩く際にふらつきが出やすい傾向があるため、安全のために杖や手すりなどをうまく活用しながら、転倒予防とバランス練習を進めていきましょう。」`;
+        } else {
+          talkBox.textContent = `「検査の結果は合計${formatSaraScore(totalScore)}点（重度の範囲）でした。体幹や手足の動きをコントロールしにくい状態ですので、ご自宅や病棟内での移動は歩行器や介助を併用して安全を最優先にしながら、座る・立つといった基本動作の安定性を高める練習を行っていきましょう。」`;
+        }
+      }
+    }
+
+    function resetSaraData() {
+      Object.values(appState.sara.timers).forEach(t => clearInterval(t.interval));
+      appState.sara.timers = {};
+      appState.sara.scores = {
+        1: null,
+        2: null,
+        3: null,
+        4: null,
+        5: { left: null, right: null },
+        6: { left: null, right: null },
+        7: { left: null, right: null },
+        8: { left: null, right: null }
+      };
+      updateSaraScore();
+      renderSaraItems();
+      updateSaraUI();
+    }
+
+    function generateSaraChartText() {
+      const { totalScore, axialScore, speechScore, limbScore, completedCount } = appState.sara;
+      const sev = getSaraSeverity(totalScore, completedCount);
+
+      let details = '';
+      SARA_ITEMS.forEach(item => {
+        if (!item.isBilateral) {
+          const s = appState.sara.scores[item.id];
+          details += `・${item.title}: ${s !== null ? s + '点' : '未測定'} / ${item.maxScore}点\n`;
+        } else {
+          const v = appState.sara.scores[item.id];
+          const avg = getSaraItemScore(item.id);
+          const lStr = v.left !== null ? `${v.left}点` : '未';
+          const rStr = v.right !== null ? `${v.right}点` : '未';
+          const avgStr = avg !== null ? `${formatSaraScore(avg)}点` : '未測定';
+          details += `・${item.title}: 平均 ${avgStr} / ${item.maxScore}点 (左:${lStr}, 右:${rStr})\n`;
+        }
+      });
+
+      return `【SARA（小脳性運動失調評価）】
+・合計得点: ${formatSaraScore(totalScore)} / 40点（入力完了: ${completedCount}/8項目）
+・重症度判定: ${sev.label}（${sev.desc}）
+・領域別内訳: 体幹・姿勢 ${formatSaraScore(axialScore)}/18点 | 構音 ${formatSaraScore(speechScore)}/6点 | 四肢失調 ${formatSaraScore(limbScore)}/16点
+
+■ 項目別詳細
+${details.trim()}
+※0点が正常、高得点ほど失調が重度（項目5〜8は左右平均点）。`;
+    }
+
+
+// スクリプト末尾で確実にアプリ初期化を実行
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
 }
